@@ -1,7 +1,7 @@
-DROP TABLE IF EXISTS blog_tag;
+DROP TABLE IF EXISTS tags;
 DROP TABLE IF EXISTS blog_article;
 DROP TABLE IF EXISTS blog_auth;
-create table blog_tag (
+create table tags (
     id serial primary key,
     name varchar(100) DEFAULT '', 
     created_on integer DEFAULT 0,

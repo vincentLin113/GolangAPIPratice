@@ -26,11 +26,12 @@ func init() {
 	dbType = setting.DatabaseSetting.Type
 	dbName = setting.DatabaseSetting.Name
 	user = setting.DatabaseSetting.User
-	// password = setting.DatabaseSetting.Password
 	host = setting.DatabaseSetting.Host
 	port = setting.DatabaseSetting.Port
 	db, err = gorm.Open(dbType, fmt.Sprintf("host=%s user=%s dbname=%s port=%s sslmode=disable", host, user, dbName, port))
 	if err != nil {
 		log.Fatalf("Open db error: %v", err)
 	}
+	db.AutoMigrate(&Tag{})
+	fmt.Println("Create `Tag`")
 }

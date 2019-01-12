@@ -2,7 +2,7 @@ package routers
 
 import (
 	"vincent-gin-go/pkg/setting"
-	"vincent-gin-go/routers/v1"
+	"vincent-gin-go/routers/api/v1"
 
 	"github.com/gin-gonic/gin"
 )
