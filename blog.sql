@@ -1,17 +1,6 @@
 DROP TABLE IF EXISTS tags;
 DROP TABLE IF EXISTS blog_article;
 DROP TABLE IF EXISTS blog_auth;
-create table tags (
-    id serial primary key,
-    name varchar(100) DEFAULT '', 
-    created_on integer DEFAULT 0,
-    created_by varchar(100) DEFAULT '',
-    modified_on integer DEFAULT 0,
-    modified_by varchar(100) DEFAULT '',
-    state smallint DEFAULT 1,
-    deleted_on integer DEFAULT 0
-);
-
 create table blog_article (
     id serial primary key,
     tag_id integer DEFAULT 0,

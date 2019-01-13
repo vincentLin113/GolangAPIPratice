@@ -17,6 +17,12 @@ type Model struct {
 	ModifiedOn int `json:"modified_on"`
 }
 
+// 預設取得Auth的帳號密碼組
+var auth = &Auth{
+	Username: "vincent_test",
+	Password: "001122",
+}
+
 func init() {
 	var (
 		err                              error
@@ -32,6 +38,20 @@ func init() {
 	if err != nil {
 		log.Fatalf("Open db error: %v", err)
 	}
-	db.AutoMigrate(&Tag{})
-	fmt.Println("Create `Tag`")
+	db.AutoMigrate(&Tag{}, &Article{}, &Auth{})
+	fmt.Println("Create `Tag` and `Article` and `Auth`")
+
+	if !checkDefaultAuthInfo() {
+		db.Create(&auth)
+		fmt.Println("Create default auth information☺️")
+	}
+}
+
+func checkDefaultAuthInfo() bool {
+	var _au Auth
+	var maps = make(map[string]interface{})
+	maps["username"] = &auth.Username
+	maps["password"] = &auth.Password
+	db.Model(&Auth{}).Where(maps).Find(&_au)
+	return _au.ID > 0
 }
