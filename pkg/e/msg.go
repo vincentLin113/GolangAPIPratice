@@ -33,7 +33,7 @@ var MsgFlags = map[int]string{
 	ERROR_AUTH_NEED_TOKEN:           "參數需加入Token",
 }
 
-func GetMsg(code int) string {
+func GetMessage(code int) string {
 	msg, ok := MsgFlags[code]
 	if ok {
 		return msg

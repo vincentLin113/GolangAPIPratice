@@ -35,7 +35,7 @@ func GetTags(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"code": code,
-		"msg":  e.GetMsg(code),
+		"msg":  e.GetMessage(code),
 		"data": data,
 	})
 }
@@ -66,7 +66,7 @@ func AddTag(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"code": code,
-		"msg":  e.GetMsg(code),
+		"msg":  e.GetMessage(code),
 		"data": make(map[string]string),
 	})
 }
@@ -115,7 +115,7 @@ func EditTag(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"code": code,
-		"msg":  e.GetMsg(code),
+		"msg":  e.GetMessage(code),
 	})
 
 	return
@@ -145,6 +145,6 @@ func DeleteTag(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"code": code,
-		"msg":  e.GetMsg(code),
+		"msg":  e.GetMessage(code),
 	})
 }

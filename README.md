@@ -5,7 +5,8 @@ gin-blog/
 │   └── app.ini            (應用程序的獨立值)
 ├── main.go
 ├── middleware
-│   └── jwt.go             (建立一個handleFunc 在API進入分流之前 驗證token)
+│   └── jwt
+│      └── jwt.go          (建立一個handleFunc 在API進入分流之前 驗證token)
 ├── models                 (這裡的models 處理與Database之間的交互)
 │   └── models.go          (關於Model通用性方法)
 |     └── tag.go           (Tag相關database相關方法)

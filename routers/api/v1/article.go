@@ -42,7 +42,7 @@ func GetArticles(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"code": code,
-		"msg":  e.GetMsg(code),
+		"msg":  e.GetMessage(code),
 		"data": data,
 	})
 }
@@ -67,7 +67,7 @@ func GetArticle(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"code": code,
-		"msg":  e.GetMsg(code),
+		"msg":  e.GetMessage(code),
 		"data": data,
 	})
 }
@@ -112,7 +112,7 @@ func AddArticle(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"code": code,
-		"msg":  e.GetMsg(code),
+		"msg":  e.GetMessage(code),
 	})
 }
 
@@ -158,7 +158,7 @@ func EditArticle(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"code": code,
-		"msg":  e.GetMsg(code),
+		"msg":  e.GetMessage(code),
 		"data": maps,
 	})
 }
@@ -181,6 +181,6 @@ func DeleteArticle(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"code": code,
-		"msg":  e.GetMsg(code),
+		"msg":  e.GetMessage(code),
 	})
 }

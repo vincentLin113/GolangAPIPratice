@@ -1,7 +1,7 @@
 package routers
 
 import (
-	"gin-blog/middleware/jwt"
+	"vincent-gin-go/middleware/jwt"
 	"vincent-gin-go/pkg/setting"
 	"vincent-gin-go/routers/api"
 	"vincent-gin-go/routers/api/v1"
