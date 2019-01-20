@@ -1,0 +1,6 @@
+[ERROR][article.go:109]2019/01/20 11:28:47 [Content is required field]
+[ERROR][article.go:109]2019/01/20 11:32:11 [Content is required field]
+[ERROR][article.go:113]2019/01/20 11:35:24 [Title is required field]
+[ERROR][article.go:113]2019/01/20 11:35:31 [標籤ID需大於0]
+[ERROR][article.go:113]2019/01/20 11:35:31 [Title is required field]
+[INFO][main.go:20]2019/01/20 11:45:59 [Actual pid is %d 33132]

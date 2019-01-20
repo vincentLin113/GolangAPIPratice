@@ -1,10 +1,10 @@
 package api
 
 import (
-	"fmt"
 	"net/http"
 	"vincent-gin-go/models"
 	"vincent-gin-go/pkg/e"
+	"vincent-gin-go/pkg/logging"
 	"vincent-gin-go/pkg/util"
 
 	"github.com/astaxie/beego/validation"
@@ -45,8 +45,8 @@ func GetAuth(c *gin.Context) {
 			code = e.ERROR_AUTH
 		}
 	} else {
-		for _, err := range valid.Errors {
-			fmt.Printf("CheckAuth validation error: ", err)
+		for err := range valid.Errors {
+			logging.Error(err)
 		}
 	}
 

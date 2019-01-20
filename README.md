@@ -34,4 +34,5 @@ gin-blog/
 依賴包
 ```
 go get -u github.com/dgrijalva/jwt-go
+go get -u github.com/fvbock/endless
 ```

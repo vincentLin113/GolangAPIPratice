@@ -1,10 +1,10 @@
 package v1
 
 import (
-	"fmt"
 	"net/http"
 	"vincent-gin-go/models"
 	"vincent-gin-go/pkg/e"
+	"vincent-gin-go/pkg/logging"
 	"vincent-gin-go/pkg/setting"
 	"vincent-gin-go/util"
 
@@ -36,7 +36,7 @@ func GetArticles(c *gin.Context) {
 		data["total"] = models.GetArticleTotalCount(maps)
 	} else {
 		for _, err := range valid.Errors {
-			fmt.Printf("Validation error: %v", err)
+			logging.Error(err)
 		}
 	}
 
@@ -62,6 +62,10 @@ func GetArticle(c *gin.Context) {
 			code = e.SUCCESS
 		} else {
 			code = e.ERROR_GET_ARTICLE_FAIL
+		}
+	} else {
+		for _, err := range valid.Errors {
+			logging.Error(err)
 		}
 	}
 
@@ -106,7 +110,7 @@ func AddArticle(c *gin.Context) {
 		}
 	} else {
 		for _, err := range valid.Errors {
-			fmt.Println("Validation error: ", err)
+			logging.Error(err)
 		}
 	}
 
@@ -154,6 +158,10 @@ func EditArticle(c *gin.Context) {
 			// 找不到對應ID的文章
 			code = e.ERROR_EDIT_ARTICLE_FAIL
 		}
+	} else {
+		for _, err := range valid.Errors {
+			logging.Error(err)
+		}
 	}
 
 	c.JSON(http.StatusOK, gin.H{
@@ -176,6 +184,10 @@ func DeleteArticle(c *gin.Context) {
 			code = e.SUCCESS
 		} else {
 			code = e.ERROR_DELETE_ARTICLE_FAIL
+		}
+	} else {
+		for _, err := range valid.Errors {
+			logging.Error(err)
 		}
 	}
 

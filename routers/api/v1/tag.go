@@ -1,10 +1,10 @@
 package v1
 
 import (
-	"fmt"
 	"net/http"
 	"vincent-gin-go/models"
 	"vincent-gin-go/pkg/e"
+	"vincent-gin-go/pkg/logging"
 	"vincent-gin-go/pkg/setting"
 	"vincent-gin-go/util"
 
@@ -62,6 +62,10 @@ func AddTag(c *gin.Context) {
 			// 驗證未錯但不存在
 			code = e.ERROR_EXIST_TAG
 		}
+	} else {
+		for _, err := range valid.Errors {
+			logging.Error(err)
+		}
 	}
 
 	c.JSON(http.StatusOK, gin.H{
@@ -110,7 +114,9 @@ func EditTag(c *gin.Context) {
 			models.EditTag(id, data)
 		}
 	} else {
-		fmt.Printf("🐤Error happened when valid `editTag` arguments, error: %v\n", valid.Errors)
+		for _, err := range valid.Errors {
+			logging.Error(err)
+		}
 	}
 
 	c.JSON(http.StatusOK, gin.H{
@@ -140,6 +146,10 @@ func DeleteTag(c *gin.Context) {
 			if err != nil {
 				code = e.ERROR_DELETE_TAG_FAIL
 			}
+		}
+	} else {
+		for _, err := range valid.Errors {
+			logging.Error(err)
 		}
 	}
 
