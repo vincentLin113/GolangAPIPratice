@@ -8,8 +8,6 @@ type Auth struct {
 
 func CheckAuth(username, password string) bool {
 	var auth Auth
-	db.Table("auths").First(&auth)
-	var auths []Auth
-	db.Find(&auths)
+	db.Where(&Auth{Username: username, Password: password}).Find(&auth)
 	return auth.ID != 0
 }
