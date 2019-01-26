@@ -1,57 +1,56 @@
 package main
 
 import (
-	"context"
 	"fmt"
-	"log"
-	"net/http"
-	"os"
-	"os/signal"
-	"time"
+	"syscall"
+	"vincent-gin-go/models"
 	"vincent-gin-go/pkg/logging"
 	"vincent-gin-go/pkg/setting"
 	"vincent-gin-go/routers"
+
+	"github.com/fvbock/endless"
 )
 
 func main() {
-	router := routers.InitRouter()
-	s := &http.Server{
-		Addr:           fmt.Sprintf(":%d", setting.ServerSetting.HttpPort),
-		Handler:        router,
-		ReadTimeout:    setting.ServerSetting.ReadTimeout,
-		WriteTimeout:   setting.ServerSetting.WriteTimeout,
-		MaxHeaderBytes: 1 << 20,
-	}
-
-	go func() {
-		if err := s.ListenAndServe(); err != nil {
-			log.Printf("Listen: %s\n", err)
-		}
-	}()
-
-	quit := make(chan os.Signal)
-	signal.Notify(quit, os.Interrupt)
-	<-quit
-	log.Println("Shutdown Server....")
-
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-	if err := s.Shutdown(ctx); err != nil {
-		logging.Error(err)
-	}
-	log.Println("Server exiting")
-
-	// endless.DefaultReadTimeOut = setting.ServerSetting.ReadTimeout
-	// endless.DefaultWriteTimeOut = setting.ServerSetting.WriteTimeout
-	// endless.DefaultMaxHeaderBytes = 1 << 20
-	// endPoint := fmt.Sprintf(":%d", setting.ServerSetting.HttpPort)
-	// server := endless.NewServer(endPoint, routers.InitRouter())
-	// server.BeforeBegin = func(add string) {
-	// 	fmt.Printf("Actual pid is %d", syscall.Getpid())
-	// 	// logging.Info("Actual pid is %d", syscall.Getpid())
-	// }
 	setting.Setup()
 	logging.Setup()
+	models.Setup()
+	// router := routers.InitRouter()
+	// s := &http.Server{
+	// 	Addr:           fmt.Sprintf(":%d", setting.ServerSetting.HttpPort),
+	// 	Handler:        router,
+	// 	ReadTimeout:    setting.ServerSetting.ReadTimeout,
+	// 	WriteTimeout:   setting.ServerSetting.WriteTimeout,
+	// 	MaxHeaderBytes: 1 << 20,
+	// }
+
+	// go func() {
+	// 	if err := s.ListenAndServe(); err != nil {
+	// 		log.Printf("Listen: %s\n", err)
+	// 	}
+	// }()
+
+	// quit := make(chan os.Signal)
+	// signal.Notify(quit, os.Interrupt)
+	// <-quit
+	// log.Println("Shutdown Server....")
+
+	// ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	// defer cancel()
+	// if err := s.Shutdown(ctx); err != nil {
+	// 	logging.Error(err)
+	// }
+	// log.Println("Server exiting")
+
+	endless.DefaultReadTimeOut = setting.ServerSetting.ReadTimeout
+	endless.DefaultWriteTimeOut = setting.ServerSetting.WriteTimeout
+	endless.DefaultMaxHeaderBytes = 1 << 20
+	endPoint := fmt.Sprintf(":%d", setting.ServerSetting.HttpPort)
+	server := endless.NewServer(endPoint, routers.InitRouter())
+	server.BeforeBegin = func(add string) {
+		fmt.Printf("Actual pid is %d", syscall.Getpid())
+		// logging.Info("Actual pid is %d", syscall.Getpid())
+	}
 	// Addr：监听的TCP地址，格式为:8000
 	// Handler：http句柄，实质为ServeHTTP，用于处理程序响应HTTP请求
 	// TLSConfig：安全传输层协议（TLS）的配置
@@ -69,8 +68,8 @@ func main() {
 	// 	WriteTimeout:   setting.ServerSetting.WriteTimeout,
 	// 	MaxHeaderBytes: 1 << 20,
 	// }
-	// err := server.ListenAndServe()
-	// if err != nil {
-	// 	panic(err)
-	// }
+	err := server.ListenAndServe()
+	if err != nil {
+		panic(err)
+	}
 }

@@ -3,9 +3,11 @@ package models
 import (
 	"fmt"
 	"log"
+	"time"
 	"vincent-gin-go/pkg/setting"
 
 	"github.com/jinzhu/gorm"
+	"github.com/lib/pq"
 	_ "github.com/lib/pq"
 )
 
@@ -15,43 +17,94 @@ type Model struct {
 	ID         int `gorm:"primary_key" json:"id"`
 	CreatedOn  int `json:"created_on"`
 	ModifiedOn int `json:"modified_on"`
+	DeletedOn  int `json:"deleted_on"`
 }
 
 // 預設取得Auth的帳號密碼組
-var auth = &Auth{
+var auth = Auth{
 	Username: "vincent_test",
 	Password: "001122",
 }
 
-func init() {
-	var (
-		err                              error
-		dbType, dbName, user, host, port string
-	)
-	setting.Setup()
-	dbType = setting.DatabaseSetting.Type
-	dbName = setting.DatabaseSetting.Name
-	user = setting.DatabaseSetting.User
-	host = setting.DatabaseSetting.Host
-	port = setting.DatabaseSetting.Port
+type Resource struct {
+	gorm.Model
+
+	Link        string
+	Name        string
+	Author      string
+	Description string
+	Tags        pq.StringArray `gorm:"type:varchar(64)[]"`
+}
+
+func Setup() {
+	var err error
+	dbType := setting.DatabaseSetting.Type
+	dbName := setting.DatabaseSetting.Name
+	user := setting.DatabaseSetting.User
+	host := setting.DatabaseSetting.Host
+	port := setting.DatabaseSetting.Port
 	db, err = gorm.Open(dbType, fmt.Sprintf("host=%s user=%s dbname=%s port=%s sslmode=disable", host, user, dbName, port))
 	if err != nil {
 		log.Fatalf("Open db error: %v", err)
 	}
 	db.AutoMigrate(&Tag{}, &Article{}, &Auth{})
 	fmt.Println("Create `Tag` and `Article` and `Auth`")
-
+	// 此為單數Model的開關
+	// db.SingularTable(true)
+	db.Callback().Create().Replace("gorm:update_time_stamp", updateTimeStampForCreateCallback)
+	db.Callback().Update().Replace("gorm:update_time_stamp", updateTimeStampForUpdateCallback)
+	db.DB().SetMaxIdleConns(10)
+	db.DB().SetMaxOpenConns(100)
 	if !checkDefaultAuthInfo() {
-		db.Create(&auth)
+		db.Table("auths").Create(&auth)
 		fmt.Println("Create default auth information☺️")
+	}
+}
+
+func updateTimeStampForCreateCallback(scope *gorm.Scope) {
+	if !scope.HasError() {
+		nowTime := time.Now().Unix()
+		if createTimeField, ok := scope.FieldByName("CreatedOn"); ok {
+			// 製造時間 若為空白
+			if createTimeField.IsBlank {
+				createTimeField.Set(nowTime)
+			}
+		}
+
+		if modifyTimeField, ok := scope.FieldByName("ModifiedOn"); ok {
+			// 修改時間若為空白
+			if modifyTimeField.IsBlank {
+				modifyTimeField.Set(nowTime)
+			}
+		}
+	}
+}
+
+func updateTimeStampForUpdateCallback(scope *gorm.Scope) {
+	if _, ok := scope.Get("gorm:update_column"); !ok {
+		scope.SetColumn("ModifiedOn", time.Now().Unix())
 	}
 }
 
 func checkDefaultAuthInfo() bool {
 	var _au Auth
-	var maps = make(map[string]interface{})
-	maps["username"] = &auth.Username
-	maps["password"] = &auth.Password
-	db.Model(&Auth{}).Where(maps).Find(&_au)
+	db.Table("auths").Where("password = ?", &auth.Password).Find(&_au)
 	return _au.ID > 0
+}
+
+func deleteCallback(scope *gorm.Scope) {
+	// if !scope.HasError() {
+	// 	var extraOption string
+	// 	if str, ok := scope.Get("gorm:delete_option"); ok {
+	// 		extraOption = fmt.Sprint(str)
+	// 	}
+	// 	deletedOnField, hasDeletedOnField := scope.FieldByName("DeletedOn")
+	// 	if !scope.Search.Unscoped && hasDeletedOnField {
+	// 		scope.Raw(fmt.Sprint("UPDATE %v SET %v=%v%v%v",
+	// 		 scope.QuotedTableName(),
+	// 		 scope.Quote(deletedOnField.DBName),
+	// 		 scope.AddToVars(time.Now().Unix()),
+	// 		 a ))
+	// 	}
+	// }
 }

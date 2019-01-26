@@ -1,9 +1,6 @@
 package models
 
 import (
-	"time"
-
-	"github.com/jinzhu/gorm"
 	_ "github.com/lib/pq"
 )
 
@@ -17,19 +14,20 @@ type Article struct {
 	Content    string `json: "content"`
 	CreatedBy  string `json: "created_by"`
 	ModifiedBy string `json: "modified_by"`
-	DeletedOn  int    `json: "deleted_on"`
-	StateCode  int    `json: "stateCode"`
+	// DeletedOn     int    `json: "deleted_on"`
+	StateCode     int    `json: "stateCode"`
+	CoverImageUrl string `json:"cover_image_url"`
 }
 
-func (article *Article) BeforeCreate(scope *gorm.Scope) error {
-	scope.SetColumn("CreatedOn", time.Now().Unix())
-	return nil
-}
+// func (article *Article) BeforeCreate(scope *gorm.Scope) error {
+// 	scope.SetColumn("CreatedOn", time.Now().Unix())
+// 	return nil
+// }
 
-func (article *Article) BeforeUpdate(scope *gorm.Scope) error {
-	scope.SetColumn("ModifiedOn", time.Now().Unix())
-	return nil
-}
+// func (article *Article) BeforeUpdate(scope *gorm.Scope) error {
+// 	scope.SetColumn("ModifiedOn", time.Now().Unix())
+// 	return nil
+// }
 
 func ExistArticleByName(name string) bool {
 	var article Article
