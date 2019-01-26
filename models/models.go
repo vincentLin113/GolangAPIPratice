@@ -92,6 +92,7 @@ func deleteCallback(scope *gorm.Scope) {
 		// 獲取我們約定的刪除字段, 若存在則UPDATE軟刪除, 不存在則DELETE硬刪除
 		deletedOnField, hasDeletedField := scope.FieldByName("DeletedOn")
 		if !scope.Search.Unscoped && hasDeletedField {
+			// example: "UPDATE \"articles\" SET \"deleted_on\"=$1  WHERE (id = $2)"
 			sqlText := fmt.Sprintf("UPDATE %v SET %v=%v%v%v",
 				scope.QuotedTableName(),
 				scope.Quote(deletedOnField.DBName),
