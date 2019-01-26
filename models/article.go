@@ -6,15 +6,13 @@ import (
 
 type Article struct {
 	Model
-	// Id      int    `json: "id" gorm: "index"`
-	Tag        Tag    `json: "tag"`
-	TagID      int    `json: "tag_id"`
-	Title      string `json: "title"`
-	Desc       string `json: "desc"`
-	Content    string `json: "content"`
-	CreatedBy  string `json: "created_by"`
-	ModifiedBy string `json: "modified_by"`
-	// DeletedOn     int    `json: "deleted_on"`
+	Tag           Tag    `json: "tag"`
+	TagID         int    `json: "tag_id"`
+	Title         string `json: "title"`
+	Desc          string `json: "desc"`
+	Content       string `json: "content"`
+	CreatedBy     string `json: "created_by"`
+	ModifiedBy    string `json: "modified_by"`
 	StateCode     int    `json: "stateCode"`
 	CoverImageUrl string `json:"cover_image_url"`
 }

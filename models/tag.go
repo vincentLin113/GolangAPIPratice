@@ -9,14 +9,10 @@ import (
 
 type Tag struct {
 	Model
-	// ID         int    `json:"id"`
-	Name string `json:"name"`
-	// CreatedOn  int    `json:"created_on"`
-	CreatedBy string `json:"created_by"`
-	// ModifiedOn int    `json:"modified_on"`
+	Name       string `json:"name"`
+	CreatedBy  string `json:"created_by"`
 	ModifiedBy string `json:"modified_by"`
 	State      int    `json:"state"`
-	// DeletedOn  int    `json:"deleted_on"`
 }
 
 func GetTags(pageNum int, pageSize int, maps interface{}) (tag []Tag) {
