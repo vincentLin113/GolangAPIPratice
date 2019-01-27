@@ -18,16 +18,6 @@ type Article struct {
 	CoverImageUrl string `json:"cover_image_url"`
 }
 
-// func (article *Article) BeforeCreate(scope *gorm.Scope) error {
-// 	scope.SetColumn("CreatedOn", time.Now().Unix())
-// 	return nil
-// }
-
-// func (article *Article) BeforeUpdate(scope *gorm.Scope) error {
-// 	scope.SetColumn("ModifiedOn", time.Now().Unix())
-// 	return nil
-// }
-
 func ExistArticleByName(name string) bool {
 	var article Article
 	db.Where("name = ?", name).First(&article)
@@ -60,7 +50,7 @@ func GetArticle(id int) (*Article, error) {
 	if err != nil && err != gorm.ErrRecordNotFound {
 		return nil, err
 	}
-	return &article, err
+	return &article, nil
 }
 
 func AddArticle(data map[string]interface{}) bool {

@@ -14,58 +14,56 @@ import (
 )
 
 func GetArticles(c *gin.Context) {
+	// appG := app.Gin{c}
+	// id := com.StrTo(c.Param("id")).MustInt()
+	// valid := validation.Validation{}
+	// valid.Min(id, 1, "id").Message("ID必須大於0")
+
+	// if valid.HasErrors() {
+	// 	app.MarkErrors(valid.Errors)
+	// 	appG.Response(http.StatusOK, e.INVALID_PARAMS, nil)
+	// 	return
+	// }
+	// articleService := article_service.Article{ID: id}
+	// exists, err := articleService.ExistByID()
+	// if err != nil {
+	// 	appG.Response(http.StatusInternalServerError, e.ERROR_CHECK_EXIST_ARTICLE_FAIL, nil)
+	// 	return
+	// }
+	// if !exists {
+	// 	appG.Response(http.StatusOK, e.ERROR_NOT_EXIST_ARTICLE, nil)
+	// 	return
+	// }
+	// article, err := articleService.Get()
+	// appG.Response(http.StatusOK, e.SUCCESS, article)
+}
+
+func GetArticle(c *gin.Context) {
 	appG := app.Gin{c}
 	id := com.StrTo(c.Param("id")).MustInt()
-	valid := validation.Validation{}
-	valid.Min(id, 1, "id").Message("ID必須大於0")
+	validation := validation.Validation{}
+	validation.Min(id, 1, "id").Message("ID不能小於1")
 
-	if valid.HasErrors() {
-		app.MarkErrors(valid.Errors)
-		appG.Response(http.StatusOK, e.INVALID_PARAMS, nil)
+	if validation.HasErrors() {
+		// 若有錯誤, 使用共有方法處理
+		app.MarkErrors(validation.Errors)
+		appG.Response(http.StatusInternalServerError, e.ERROR_GET_ARTICLE_FAIL, nil)
 		return
 	}
+
 	articleService := article_service.Article{ID: id}
-	exists, err := articleService.ExistByID()
+	exist, err := articleService.ExistByID()
 	if err != nil {
-		appG.Response(http.StatusInternalServerError, e.ERROR_CHECK_EXIST_ARTICLE_FAIL, nil)
+		appG.Response(http.StatusInternalServerError, e.ERROR_GET_ARTICLE_FAIL, nil)
 		return
 	}
-	if !exists {
-		appG.Response(http.StatusOK, e.ERROR_NOT_EXIST_ARTICLE, nil)
+	if !exist {
+		// 若不存在, 則http為正常
+		appG.Response(http.StatusOK, e.ERROR_GET_ARTICLE_FAIL, nil)
 		return
 	}
 	article, err := articleService.Get()
 	appG.Response(http.StatusOK, e.SUCCESS, article)
-}
-
-func GetArticle(c *gin.Context) {
-	id := com.StrTo(c.Param("id")).MustInt()
-	valid := validation.Validation{}
-	valid.Min(id, 1, "id").Message("ID必須大於0")
-	var data = make(map[string]interface{})
-
-	code := e.INVALID_PARAMS
-	if !valid.HasErrors() {
-		// 若無錯誤
-		success, _ := models.ExistArticleById(id)
-		if success {
-			article, _ := models.GetArticle(id)
-			data["article"] = article
-			code = e.SUCCESS
-		} else {
-			code = e.ERROR_GET_ARTICLE_FAIL
-		}
-	} else {
-		for _, err := range valid.Errors {
-			logging.Error(err)
-		}
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"code": code,
-		"msg":  e.GetMessage(code),
-		"data": data,
-	})
 }
 
 func AddArticle(c *gin.Context) {

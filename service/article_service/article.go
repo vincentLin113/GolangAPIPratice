@@ -41,7 +41,7 @@ func (a *Article) Get() (*models.Article, error) {
 			return cacheArticle, nil
 		}
 	}
-	// 走到這邊 代表Gredis無緩存
+	// 走到這邊 代表Redis無緩存
 	article, err := models.GetArticle(a.ID)
 	if err != nil {
 		return nil, err

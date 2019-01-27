@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"syscall"
 	"vincent-gin-go/models"
+	"vincent-gin-go/pkg/gredis"
 	"vincent-gin-go/pkg/logging"
 	"vincent-gin-go/pkg/setting"
 	"vincent-gin-go/routers"
@@ -15,6 +16,7 @@ func main() {
 	setting.Setup()
 	logging.Setup()
 	models.Setup()
+	gredis.Setup()
 	// router := routers.InitRouter()
 	// s := &http.Server{
 	// 	Addr:           fmt.Sprintf(":%d", setting.ServerSetting.HttpPort),
