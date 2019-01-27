@@ -13,19 +13,22 @@ gin-blog/
 |   └── article.go            (Article與database相關方法)
 |   └── auth.go               (Auth與database相關方法)
 ├── pkg
+│   ├── app
+│       ├── request.go        (Validation.Errors的統一處理)
+│       ├── response.go       (JSON方法)
 │   ├── e
-│   │   ├── code.go
-│   │   └── msg.go
+│       ├── code.go
+│       └── msg.go
 │   ├── setting
-│   │   └── setting.go        (程序設定檔)
-│   └── util
-│   │   └── jwt.go            (生成及驗證Token)
-│   └── upload
-│   │   └── image.go          (照片檔案相關方法)
-│   └── logging
+│       └── setting.go        (程序設定檔)
+│   ├── util
+│       └── jwt.go            (生成及驗證Token)
+│   ├── upload
+│       └── image.go          (照片檔案相關方法)
+│   ├── logging
 │       └── file.go           (檔案相關方法)
 │       └── log.go            (記錄在logfile相關方法)
-├── pkg
+├── service
 │   ├── article_service
 │            ├──  article.go  (Article的獲Get/Add/Updata方法)
 │   ├── tag_service
