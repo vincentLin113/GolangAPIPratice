@@ -10,6 +10,7 @@ type Gin struct {
 	C *gin.Context
 }
 
+// Response: 處理JSON
 func (g *Gin) Response(httpCode, errCode int, data interface{}) {
 	g.C.JSON(httpCode, gin.H{
 		"code": httpCode,

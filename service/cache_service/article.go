@@ -14,7 +14,7 @@ type Article struct {
 	PageSize int
 }
 
-// GetArticleKey: EXAMPLE: "ARTICLE_ID"
+// GetArticleKey EXAMPLE: "ARTICLE_ID"
 func (a *Article) GetArticleKey() string {
 	return e.CACHE_ARTICLE + "_" + strconv.Itoa(a.ID)
 }

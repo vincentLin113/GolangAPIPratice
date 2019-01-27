@@ -1,6 +1,7 @@
 package models
 
 import (
+	"github.com/jinzhu/gorm"
 	_ "github.com/lib/pq"
 )
 
@@ -33,10 +34,10 @@ func ExistArticleByName(name string) bool {
 	return article.ID > 0
 }
 
-func ExistArticleById(id int) bool {
+func ExistArticleById(id int) (bool, error) {
 	var article Article
-	db.Where("id = ?", id).First(&article)
-	return article.ID > 0
+	err := db.Where("id = ? AND deleted_on = ?", id, 0).First(&article).Error
+	return article.ID > 0, err
 }
 
 func GetArticleTotalCount(data interface{}) (count int) {
@@ -50,13 +51,16 @@ func GetAllArticles(pageNum int, pageSize int, maps interface{}) (articles []Art
 	return
 }
 
-func GetArticle(id int) (article Article) {
+func GetArticle(id int) (*Article, error) {
 	// 	能够达到关联，首先是gorm本身做了大量的约定俗成
 	//  Article有一个结构体成员是TagID，就是外键。gorm会通过类名+ID的方式去找到这两个类之间的关联关系
 	//  Article有一个结构体成员是Tag，就是我们嵌套在Article里的Tag结构体，我们可以通过Related进行关联查询
-	db.Where("id = ?", id).First(&article)
-	db.Model(&article).Related(&article.Tag)
-	return
+	var article Article
+	err := db.Where("id = ? AND deleted_on = ?", id, 0).First(&article).Related(&article.Tag).Error
+	if err != nil && err != gorm.ErrRecordNotFound {
+		return nil, err
+	}
+	return &article, err
 }
 
 func AddArticle(data map[string]interface{}) bool {
@@ -71,10 +75,11 @@ func AddArticle(data map[string]interface{}) bool {
 	return true
 }
 
-func EditArticle(id int, data interface{}) (bool, Article) {
-	db.Model(&Article{}).Where("id = ?", id).Updates(data)
-	article := GetArticle(id)
-	return true, article
+func EditArticle(id int, data interface{}) error {
+	if err := db.Model(&Article{}).Where("id = ?", id).Updates(data).Error; err != nil {
+		return err
+	}
+	return nil
 }
 
 func DeleteArticle(id int) bool {

@@ -3,10 +3,10 @@ package v1
 import (
 	"net/http"
 	"vincent-gin-go/models"
+	"vincent-gin-go/pkg/app"
 	"vincent-gin-go/pkg/e"
 	"vincent-gin-go/pkg/logging"
-	"vincent-gin-go/pkg/setting"
-	"vincent-gin-go/util"
+	"vincent-gin-go/service/article_service"
 
 	"github.com/Unknwon/com"
 	"github.com/astaxie/beego/validation"
@@ -14,37 +14,28 @@ import (
 )
 
 func GetArticles(c *gin.Context) {
-	data := make(map[string]interface{})
-	maps := make(map[string]interface{})
+	appG := app.Gin{c}
+	id := com.StrTo(c.Param("id")).MustInt()
 	valid := validation.Validation{}
+	valid.Min(id, 1, "id").Message("ID必須大於0")
 
-	state := com.StrTo(c.DefaultQuery("state", "0")).MustInt()
-	maps["state_code"] = state
-	valid.Range(state, 0, 1, "state").Message("狀態只允許0, 1")
-
-	var tagId = -1
-	if arg := c.Query("tag_id"); arg != "" {
-		tagId = com.StrTo(arg).MustInt()
-		maps["tag_id"] = tagId
-		valid.Min(tagId, 0, "tag_id").Message("標籤ID一定要大於0")
+	if valid.HasErrors() {
+		app.MarkErrors(valid.Errors)
+		appG.Response(http.StatusOK, e.INVALID_PARAMS, nil)
+		return
 	}
-
-	code := e.INVALID_PARAMS
-	if !valid.HasErrors() {
-		code = e.SUCCESS
-		data["list"] = models.GetAllArticles(util.GetPage(c), setting.AppSetting.PageSize, maps)
-		data["total"] = models.GetArticleTotalCount(maps)
-	} else {
-		for _, err := range valid.Errors {
-			logging.Error(err)
-		}
+	articleService := article_service.Article{ID: id}
+	exists, err := articleService.ExistByID()
+	if err != nil {
+		appG.Response(http.StatusInternalServerError, e.ERROR_CHECK_EXIST_ARTICLE_FAIL, nil)
+		return
 	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"code": code,
-		"msg":  e.GetMessage(code),
-		"data": data,
-	})
+	if !exists {
+		appG.Response(http.StatusOK, e.ERROR_NOT_EXIST_ARTICLE, nil)
+		return
+	}
+	article, err := articleService.Get()
+	appG.Response(http.StatusOK, e.SUCCESS, article)
 }
 
 func GetArticle(c *gin.Context) {
@@ -56,8 +47,9 @@ func GetArticle(c *gin.Context) {
 	code := e.INVALID_PARAMS
 	if !valid.HasErrors() {
 		// 若無錯誤
-		if models.ExistArticleById(id) {
-			article := models.GetArticle(id)
+		success, _ := models.ExistArticleById(id)
+		if success {
+			article, _ := models.GetArticle(id)
 			data["article"] = article
 			code = e.SUCCESS
 		} else {
@@ -144,16 +136,21 @@ func EditArticle(c *gin.Context) {
 	code := e.INVALID_PARAMS
 	if !valid.HasErrors() {
 		// 驗證無錯
-		if models.ExistArticleById(id) {
+		success, _ := models.ExistArticleById(id)
+		if success {
 			data["tag_id"] = tag_id
 			data["title"] = title
 			data["desc"] = desc
 			data["content"] = content
 			data["created_by"] = createdBy
 			data["state_code"] = state
-			_, article := models.EditArticle(id, data)
-			maps["data"] = article
-			code = e.SUCCESS
+			err := models.EditArticle(id, data)
+			if err != nil {
+				code = e.ERROR_EDIT_ARTICLE_FAIL
+			} else {
+				code = e.SUCCESS
+				maps["data"] = data
+			}
 		} else {
 			// 找不到對應ID的文章
 			code = e.ERROR_EDIT_ARTICLE_FAIL
@@ -178,7 +175,8 @@ func DeleteArticle(c *gin.Context) {
 	code := e.INVALID_PARAMS
 	if !valid.HasErrors() {
 		// 驗證無錯
-		if models.ExistArticleById(id) {
+		success, _ := models.ExistArticleById(id)
+		if success {
 			// 找到對應文章
 			models.DeleteArticle(id)
 			code = e.SUCCESS
