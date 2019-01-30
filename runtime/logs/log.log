@@ -6,3 +6,4 @@
 [INFO][main.go:20]2019/01/20 11:45:59 [Actual pid is %d 33132]
 [WARN][upload.go:41]2019/01/26 10:25:48 [open runtime/upload/images/54c3998236e5d08cb15ddb4b50700eb2.png: no such file or directory]
 [WARN][upload.go:41]2019/01/26 10:27:27 [open runtime/upload/images/54c3998236e5d08cb15ddb4b50700eb2.png: no such file or directory]
+[WARN][upload.go:17]2019/01/28 07:51:10 [read tcp 127.0.0.1:8001->127.0.0.1:54883: i/o timeout]

@@ -30,8 +30,8 @@ func GetTags(c *gin.Context) {
 
 	code := e.SUCCESS
 	pageNum := util.GetPage(c)
-	data["lists"] = models.GetTags(pageNum, setting.AppSetting.PageSize, maps)
-	data["total"] = models.GetTagTotal(maps)
+	data["lists"], _ = models.GetTags(pageNum, setting.AppSetting.PageSize, maps)
+	data["total"], _ = models.GetTagTotal(maps)
 
 	c.JSON(http.StatusOK, gin.H{
 		"code": code,
@@ -54,7 +54,8 @@ func AddTag(c *gin.Context) {
 
 	code := e.INVALID_PARAMS
 	if !valid.HasErrors() {
-		if !models.ExistTagByName(name) {
+		exist, _ := models.ExistTagByName(name)
+		if !exist {
 			// 驗證未錯且不存在此Tag
 			code = e.SUCCESS
 			models.AddTag(name, state, createdBy)
@@ -95,7 +96,8 @@ func EditTag(c *gin.Context) {
 	code := e.INVALID_PARAMS
 
 	if !valid.HasErrors() {
-		if !models.ExistTagById(id) {
+		exist, _ := models.ExistTagById(id)
+		if !exist {
 			// 驗證無措 但 不存在
 			code = e.ERROR_EXIST_TAG_FAIL
 		} else {
@@ -137,7 +139,8 @@ func DeleteTag(c *gin.Context) {
 
 	code := e.INVALID_PARAMS
 	if !valid.HasErrors() {
-		if !models.ExistTagById(id) {
+		exist, _ := models.ExistTagById(id)
+		if !exist {
 			// 驗證無錯 但Tag不存在
 			code = e.ERROR_DELETE_TAG_FAIL
 		} else {

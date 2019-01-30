@@ -30,15 +30,17 @@ func ExistArticleById(id int) (bool, error) {
 	return article.ID > 0, err
 }
 
-func GetArticleTotalCount(data interface{}) (count int) {
-	db.Model(Article{}).Where(data).Count(&count)
-	return
+func GetArticleTotalCount(data interface{}) (int, error) {
+	var count int
+	err := db.Model(Article{}).Where(data).Count(&count).Error
+	return count, err
 }
 
 // GetAllArticles `Get all article in the database`
-func GetAllArticles(pageNum int, pageSize int, maps interface{}) (articles []Article) {
-	db.Preload("Tag").Where(maps).Offset(pageNum).Limit(pageSize).Find(&articles)
-	return
+func GetAllArticles(pageNum int, pageSize int, maps interface{}) ([]*Article, error) {
+	var articles = []*Article{}
+	err := db.Preload("Tag").Where(maps).Offset(pageNum).Limit(pageSize).Find(&articles).Error
+	return articles, err
 }
 
 func GetArticle(id int) (*Article, error) {
@@ -53,16 +55,16 @@ func GetArticle(id int) (*Article, error) {
 	return &article, nil
 }
 
-func AddArticle(data map[string]interface{}) bool {
-	db.Create(&Article{
+func AddArticle(data map[string]interface{}) error {
+	err := db.Create(&Article{
 		TagID:     data["tag_id"].(int),
 		Title:     data["title"].(string),
 		Desc:      data["desc"].(string),
 		Content:   data["content"].(string),
 		CreatedBy: data["created_by"].(string),
 		StateCode: data["state_code"].(int),
-	})
-	return true
+	}).Error
+	return err
 }
 
 func EditArticle(id int, data interface{}) error {

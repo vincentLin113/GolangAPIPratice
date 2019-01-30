@@ -2,6 +2,7 @@ package gredis
 
 import (
 	"encoding/json"
+	"fmt"
 	"time"
 	"vincent-gin-go/pkg/setting"
 
@@ -65,6 +66,7 @@ func Exists(key string) bool {
 
 	exists, err := redis.Bool(conn.Do("EXISTS", key))
 	if err != nil {
+		fmt.Println("ERROR: ", err)
 		return false
 	}
 
@@ -77,6 +79,7 @@ func Get(key string) ([]byte, error) {
 	// redis.Bytes(reply interface{}, err error)：将命令返回转为 Bytes
 	reply, err := redis.Bytes(conn.Do("GET", key))
 	if err != nil {
+		fmt.Println("ERROR: ", err)
 		return nil, err
 	}
 	return reply, nil

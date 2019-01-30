@@ -2,9 +2,6 @@ package models
 
 import (
 	"log"
-	"time"
-
-	"github.com/jinzhu/gorm"
 )
 
 type Tag struct {
@@ -15,54 +12,55 @@ type Tag struct {
 	State      int    `json:"state"`
 }
 
-func GetTags(pageNum int, pageSize int, maps interface{}) (tag []Tag) {
-	err := db.Where(maps).Offset(pageNum).Limit(pageSize).Find(&tag).Error
+func GetTags(pageNum int, pageSize int, maps interface{}) ([]Tag, error) {
+	var tags []Tag
+	err := db.Where(maps).Offset(pageNum).Limit(pageSize).Find(&tags).Error
 	if err != nil {
 		log.Fatalf("db error: %v", err)
 	}
-	return
+	return tags, err
 }
 
-func GetTagTotal(maps interface{}) (count int) {
-	db.Model(&Tag{}).Where(maps).Count(&count)
-	return
+func GetTagTotal(maps interface{}) (int, error) {
+	var count int
+	err := db.Model(&Tag{}).Where(maps).Count(&count).Error
+	return count, err
 }
 
-func ExistTagByName(name string) bool {
+func ExistTagByName(name string) (bool, error) {
 	var tag Tag
-	db.Select("id").Where("name = ?", name).First(&tag)
+	err := db.Select("id").Where("name = ?", name).First(&tag).Error
 	if tag.ID > 0 {
-		return true
+		return true, err
 	}
-	return false
+	return false, err
 }
 
-func ExistTagById(id int) bool {
+func ExistTagById(id int) (bool, error) {
 	var tag Tag
-	db.Where("id = ?", id).First(&tag)
+	err := db.Where("id = ?", id).First(&tag).Error
 	if tag.ID > 0 {
-		return true
+		return true, err
 	}
-	return false
+	return false, err
 }
 
-func AddTag(name string, state int, createdBy string) bool {
-	db.Create(&Tag{
+func AddTag(name string, state int, createdBy string) error {
+	err := db.Create(&Tag{
 		Name:      name,
 		State:     state,
 		CreatedBy: createdBy,
-	})
-	return true
+	}).Error
+	return err
 }
 
-func EditTag(id int, data interface{}) bool {
+func EditTag(id int, data interface{}) error {
 	var tag Tag
 	err := db.Where("id = ?", id).First(&tag).Updates(data).Error
 	if err != nil {
 		log.Fatalf("EditTag error: %v", err)
-		return false
 	}
-	return true
+	return err
 }
 
 func DeleteTag(id int) (bool, error) {
@@ -77,13 +75,13 @@ func DeleteTag(id int) (bool, error) {
 // 删除：BeforeDelete、AfterDelete
 // 查询：AfterFind
 // Gorm回調方法
-func (tag *Tag) BeforeCreate(scope *gorm.Scope) error {
-	scope.SetColumn("CreatedOn", time.Now().Unix())
-	return nil
-}
+// func (tag *Tag) BeforeCreate(scope *gorm.Scope) error {
+// 	scope.SetColumn("CreatedOn", time.Now().Unix())
+// 	return nil
+// }
 
-// Gorm回調方法
-func (tag *Tag) BeforeUpdate(scope *gorm.Scope) error {
-	scope.SetColumn("ModifiedOn", time.Now().Unix())
-	return nil
-}
+// // Gorm回調方法
+// func (tag *Tag) BeforeUpdate(scope *gorm.Scope) error {
+// 	scope.SetColumn("ModifiedOn", time.Now().Unix())
+// 	return nil
+// }

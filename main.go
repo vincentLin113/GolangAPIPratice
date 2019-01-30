@@ -16,7 +16,10 @@ func main() {
 	setting.Setup()
 	logging.Setup()
 	models.Setup()
-	gredis.Setup()
+	gredisErr := gredis.Setup()
+	if gredisErr != nil {
+		panic(gredisErr)
+	}
 	// router := routers.InitRouter()
 	// s := &http.Server{
 	// 	Addr:           fmt.Sprintf(":%d", setting.ServerSetting.HttpPort),
