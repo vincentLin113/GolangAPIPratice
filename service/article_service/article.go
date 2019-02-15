@@ -90,6 +90,20 @@ func (a *Article) Add() error {
 	return models.AddArticle(a.getMaps())
 }
 
+func (a *Article) Edit() error {
+	var err error
+	err = models.EditArticle(a.ID, map[string]interface{}{
+		"tag_id":          a.TagID,
+		"title":           a.Title,
+		"desc":            a.Desc,
+		"content":         a.Content,
+		"cover_image_url": a.CoverImageUrl,
+		"state":           a.State,
+		"modified_by":     a.ModifiedBy,
+	})
+	return err
+}
+
 // getMaps 從Model本身產出Dictionary(map[string]interface{})
 func (a *Article) getMaps() map[string]interface{} {
 	maps := make(map[string]interface{})

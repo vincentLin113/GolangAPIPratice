@@ -67,21 +67,3 @@ func DeleteTag(id int) (bool, error) {
 	err := db.Where("id = ?", id).Delete(&Tag{}).Error
 	return true, err
 }
-
-// gorm所支持的回调方法：
-
-// 创建：BeforeSave、BeforeCreate、AfterCreate、AfterSave
-// 更新：BeforeSave、BeforeUpdate、AfterUpdate、AfterSave
-// 删除：BeforeDelete、AfterDelete
-// 查询：AfterFind
-// Gorm回調方法
-// func (tag *Tag) BeforeCreate(scope *gorm.Scope) error {
-// 	scope.SetColumn("CreatedOn", time.Now().Unix())
-// 	return nil
-// }
-
-// // Gorm回調方法
-// func (tag *Tag) BeforeUpdate(scope *gorm.Scope) error {
-// 	scope.SetColumn("ModifiedOn", time.Now().Unix())
-// 	return nil
-// }

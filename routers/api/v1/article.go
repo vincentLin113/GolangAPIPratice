@@ -137,60 +137,68 @@ func AddArticle(c *gin.Context) {
 	appG.Response(http.StatusOK, e.SUCCESS, nil)
 }
 
+type EditArticleForm struct {
+	ID            int    `form:"id" valid:"Required;Min(1)"`
+	TagID         int    `form:"tag_id" valid:"Required;Min(1)"`
+	Title         string `form:"title" valid:"Required;MaxSize(100)"`
+	Desc          string `form:"desc" valid:"Required;MaxSize(255)"`
+	Content       string `form:"content" valid:"Required;MaxSize(65535)"`
+	ModifiedBy    string `form:"modified_by" valid:"Required;MaxSize(100)"`
+	CoverImageUrl string `form:"cover_image_url" valid:"Required;MaxSize(255)"`
+	State         int    `form:"state_code" valid:"Range(0, 1)"`
+}
+
 // EditArticle Required field `tag_id`, `title`, `desc`, `content`, `created_by`, `state`
 func EditArticle(c *gin.Context) {
-	id := com.StrTo(c.Param("id")).MustInt()
-	tag_id := com.StrTo(c.Query("tag_id")).MustInt()
-	title := c.Query("title")
-	desc := c.Query("desc")
-	content := c.Query("content")
-	createdBy := c.Query("created_by")
-	state := com.StrTo(c.DefaultQuery("state", "0")).MustInt()
-
-	valid := validation.Validation{}
-	valid.Min(id, 1, "id").Message("文章ID不得小於1")
-	valid.Min(tag_id, 1, "tag_id").Message("標籤ID需大於0")
-	valid.Required(title, "title").Message("Title is required field")
-	valid.Required(desc, "desc").Message("Desc is required field")
-	valid.Required(content, "content").Message("Content is required field")
-	valid.Required(createdBy, "created_by").Message("created_by is required field")
-	valid.Range(state, 0, 1, "state").Message("State value only accepted 0 or 1")
-
-	var data = make(map[string]interface{})
-	var maps = make(map[string]interface{})
-	code := e.INVALID_PARAMS
-	if !valid.HasErrors() {
-		// 驗證無錯
-		success, _ := models.ExistArticleById(id)
-		if success {
-			data["tag_id"] = tag_id
-			data["title"] = title
-			data["desc"] = desc
-			data["content"] = content
-			data["created_by"] = createdBy
-			data["state_code"] = state
-			err := models.EditArticle(id, data)
-			if err != nil {
-				code = e.ERROR_EDIT_ARTICLE_FAIL
-			} else {
-				code = e.SUCCESS
-				maps["data"] = data
-			}
-		} else {
-			// 找不到對應ID的文章
-			code = e.ERROR_EDIT_ARTICLE_FAIL
-		}
-	} else {
-		for _, err := range valid.Errors {
-			logging.Error(err)
-		}
+	appG := app.Gin{c}
+	form := EditArticleForm{
+		ID: com.StrTo(c.Param("id")).MustInt(),
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"code": code,
-		"msg":  e.GetMessage(code),
-		"data": maps,
-	})
+	httpCode, errCode := app.BindAndValid(c, form)
+	if errCode != e.SUCCESS {
+		appG.Response(httpCode, e.INVALID_PARAMS, nil)
+		return
+	}
+
+	articleService := article_service.Article{
+		ID:            form.ID,
+		TagID:         form.TagID,
+		Title:         form.Title,
+		Desc:          form.Desc,
+		Content:       form.Content,
+		CoverImageUrl: form.CoverImageUrl,
+		State:         form.State,
+		ModifiedBy:    form.ModifiedBy,
+	}
+	exists, err := articleService.ExistByID()
+	if err != nil {
+		appG.Response(http.StatusInternalServerError, e.ERROR_NOT_EXIST_ARTICLE, nil)
+		return
+	}
+	if !exists {
+		appG.Response(http.StatusOK, e.ERROR_NOT_EXIST_ARTICLE, nil)
+		return
+	}
+
+	tagService := tag_service.Tag{
+		ID: form.TagID,
+	}
+	tagExist, err := tagService.ExistById()
+	if err != nil {
+		appG.Response(http.StatusInternalServerError, e.ERROR_NOT_EXIST_TAG, nil)
+		return
+	}
+	if !tagExist {
+		appG.Response(http.StatusInternalServerError, e.ERROR_EXIST_TAG_FAIL, nil)
+		return
+	}
+	err = articleService.Edit()
+	if err != nil {
+		appG.Response(http.StatusInternalServerError, e.ERROR_EDIT_ARTICLE_FAIL, nil)
+		return
+	}
+	appG.Response(http.StatusOK, e.SUCCESS, nil)
 }
 
 func DeleteArticle(c *gin.Context) {
