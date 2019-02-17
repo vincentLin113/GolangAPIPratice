@@ -24,7 +24,11 @@ func main() {
 	endless.DefaultReadTimeOut = setting.ServerSetting.ReadTimeout
 	endless.DefaultWriteTimeOut = setting.ServerSetting.WriteTimeout
 	endless.DefaultMaxHeaderBytes = 1 << 20
-	endPoint := fmt.Sprintf(":%d", os.Getenv("PORT"))
+	port := os.Getenv("PORT")
+	if port == "" {
+		fmt.Println("$PORT not set")
+	}
+	endPoint := fmt.Sprintf(":%s", port)
 	// endPoint := fmt.Sprintf(":%d", setting.ServerSetting.HttpPort)
 	server := endless.NewServer(endPoint, routers.InitRouter())
 	server.BeforeBegin = func(add string) {
