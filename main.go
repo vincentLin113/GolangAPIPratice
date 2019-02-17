@@ -27,8 +27,10 @@ func main() {
 	port := os.Getenv("PORT")
 	if port == "" {
 		fmt.Println("$PORT not set")
+		port = fmt.Sprintf("%d", setting.ServerSetting.HttpPort)
 	}
 	endPoint := fmt.Sprintf(":%s", port)
+	fmt.Printf("### END POINT: %s ###\n", endPoint)
 	// endPoint := fmt.Sprintf(":%d", setting.ServerSetting.HttpPort)
 	server := endless.NewServer(endPoint, routers.InitRouter())
 	server.BeforeBegin = func(add string) {
@@ -36,6 +38,7 @@ func main() {
 	}
 	err := server.ListenAndServe()
 	if err != nil {
+		logging.Error(err)
 		panic(err)
 	}
 }
