@@ -3,8 +3,8 @@ package models
 import (
 	"fmt"
 	"log"
+	"os"
 	"time"
-	"vincent-gin-go/pkg/setting"
 
 	"github.com/jinzhu/gorm"
 	_ "github.com/lib/pq"
@@ -27,12 +27,13 @@ var auth = Auth{
 
 func Setup() {
 	var err error
-	dbType := setting.DatabaseSetting.Type
-	dbName := setting.DatabaseSetting.Name
-	user := setting.DatabaseSetting.User
-	host := setting.DatabaseSetting.Host
-	port := setting.DatabaseSetting.Port
-	db, err = gorm.Open(dbType, fmt.Sprintf("host=%s user=%s dbname=%s port=%s sslmode=disable", host, user, dbName, port))
+	// dbType := setting.DatabaseSetting.Type
+	// dbName := setting.DatabaseSetting.Name
+	// user := setting.DatabaseSetting.User
+	// host := setting.DatabaseSetting.Host
+	// port := setting.DatabaseSetting.Port
+	db, err = gorm.Open("postgres", os.Getenv("DATABASE_URL"))
+	// db, err = gorm.Open(dbType, fmt.Sprintf("host=%s user=%s dbname=%s port=%s sslmode=disable", host, user, dbName, port))
 	if err != nil {
 		log.Fatalf("Open db error: %v", err)
 	}
