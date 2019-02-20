@@ -1,1 +1,1 @@
-web: gin-go
+web: vincent-gin-go
