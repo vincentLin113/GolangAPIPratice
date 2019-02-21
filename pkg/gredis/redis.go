@@ -17,7 +17,7 @@ func Setup() error {
 	if setting.ServerSetting.RunMode == "debug" {
 		host = "localhost:6379"
 	} else {
-		host = os.Getenv("REDIS_URL")
+		host = os.Getenv("REDISTOGO_URL")
 	}
 	fmt.Println("\n ###REDIS HOST:", host)
 	RedisConn = &redis.Pool{
