@@ -19,7 +19,7 @@ func Setup() error {
 	} else {
 		host = os.Getenv("REDIS_URL")
 	}
-
+	fmt.Println("\n ###REDIS HOST:", host)
 	RedisConn = &redis.Pool{
 		MaxIdle:     setting.RedisSetting.MaxIdle,
 		MaxActive:   setting.RedisSetting.MaxActive,
