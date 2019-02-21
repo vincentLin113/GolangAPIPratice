@@ -3,6 +3,7 @@ package gredis
 import (
 	"encoding/json"
 	"fmt"
+	"os"
 	"time"
 	"vincent-gin-go/pkg/setting"
 
@@ -16,7 +17,7 @@ func Setup() error {
 	if setting.ServerSetting.RunMode == "debug" {
 		host = "localhost:6379"
 	} else {
-		host = setting.RedisSetting.Host
+		host = os.Getenv("REDIS_URL")
 	}
 
 	RedisConn = &redis.Pool{
