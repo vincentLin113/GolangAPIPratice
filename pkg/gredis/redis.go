@@ -12,12 +12,19 @@ import (
 var RedisConn *redis.Pool
 
 func Setup() error {
+	host := ""
+	if setting.ServerSetting.RunMode == "debug" {
+		host = "localhost:6379"
+	} else {
+		host = setting.RedisSetting.Host
+	}
+
 	RedisConn = &redis.Pool{
 		MaxIdle:     setting.RedisSetting.MaxIdle,
 		MaxActive:   setting.RedisSetting.MaxActive,
 		IdleTimeout: setting.RedisSetting.IdelTimeout,
 		Dial: func() (redis.Conn, error) {
-			c, err := redis.Dial("tcp", setting.RedisSetting.Host)
+			c, err := redis.Dial("tcp", host)
 			if err != nil {
 				return nil, err
 			}
