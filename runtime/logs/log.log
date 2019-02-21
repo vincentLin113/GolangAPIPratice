@@ -11,3 +11,6 @@
 [INFO][request.go:12]2019/02/01 20:57:52 [CreatedBy.Required Can not be empty]
 [ERROR][main.go:40]2019/02/17 10:42:55 [accept tcp [::]:50724: use of closed network connection]
 [ERROR][main.go:41]2019/02/17 10:46:19 [accept tcp [::]:8000: use of closed network connection]
+[ERROR][main.go:41]2019/02/20 15:37:03 [accept tcp [::]:8000: use of closed network connection]
+[ERROR][main.go:41]2019/02/21 09:16:42 [accept tcp [::]:8000: use of closed network connection]
+[ERROR][main.go:41]2019/02/21 09:18:49 [accept tcp [::]:8000: use of closed network connection]

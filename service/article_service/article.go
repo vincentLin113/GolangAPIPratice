@@ -107,12 +107,16 @@ func (a *Article) Edit() error {
 // getMaps 從Model本身產出Dictionary(map[string]interface{})
 func (a *Article) getMaps() map[string]interface{} {
 	maps := make(map[string]interface{})
-	maps["deleted_on"] = 0
 	if a.State != -1 {
 		maps["state_code"] = a.State
 	}
 	if a.TagID != -1 {
 		maps["tag_id"] = a.TagID
 	}
+	maps["content"] = a.Content
+	maps["desc"] = a.Desc
+	maps["title"] = a.Title
+	maps["cover_image_url"] = a.CoverImageUrl
+	maps["created_by"] = a.CreatedBy
 	return maps
 }
