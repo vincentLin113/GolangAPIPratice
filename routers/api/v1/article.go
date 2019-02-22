@@ -126,6 +126,7 @@ func AddArticle(c *gin.Context) {
 		Title:         form.Title,
 		Desc:          form.Desc,
 		Content:       form.Content,
+		CreatedBy:     form.CreatedBy,
 		CoverImageUrl: form.CoverImageUrl,
 		State:         form.State,
 	}

@@ -31,7 +31,6 @@ func main() {
 	}
 	endPoint := fmt.Sprintf(":%s", port)
 	fmt.Printf("### END POINT: %s ###\n", endPoint)
-	// endPoint := fmt.Sprintf(":%d", setting.ServerSetting.HttpPort)
 	server := endless.NewServer(endPoint, routers.InitRouter())
 	server.BeforeBegin = func(add string) {
 		fmt.Printf("Actual pid is %d", syscall.Getpid())
