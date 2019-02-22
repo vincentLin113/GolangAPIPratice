@@ -24,7 +24,7 @@ func Setup() error {
 		if err != nil {
 			logging.Error(err)
 		}
-		host = rawURL.Hostname()
+		host = rawURL.Hostname() + ":" + rawURL.Port()
 	}
 	fmt.Println("\n ###REDIS HOST:", host)
 	RedisConn = &redis.Pool{
