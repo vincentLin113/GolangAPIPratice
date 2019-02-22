@@ -38,8 +38,10 @@ func Setup() error {
 			}
 
 			if setting.RedisSetting.Paswword != "" {
+				fmt.Println("\n ##### REDIST PASSWORD: ", setting.RedisSetting.Paswword)
 				if _, err := c.Do("AUTH", setting.RedisSetting.Paswword); err != nil {
 					c.Close()
+					fmt.Println("\n ### REDIS AUTH ERROR: ", err)
 					return nil, err
 				}
 			}
