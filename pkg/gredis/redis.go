@@ -3,7 +3,10 @@ package gredis
 import (
 	"encoding/json"
 	"fmt"
+	"net/url"
+	"os"
 	"time"
+	"vincent-gin-go/pkg/logging"
 	"vincent-gin-go/pkg/setting"
 
 	"github.com/gomodule/redigo/redis"
@@ -16,7 +19,12 @@ func Setup() error {
 	if setting.ServerSetting.RunMode == "debug" {
 		host = "localhost:6379"
 	} else {
-		host = setting.RedisSetting.Host
+		fullAddress := os.Getenv("REDISTOGO_URL")
+		rawURL, err := url.Parse(fullAddress)
+		if err != nil {
+			logging.Error(err)
+		}
+		host = rawURL.Hostname()
 	}
 	fmt.Println("\n ###REDIS HOST:", host)
 	RedisConn = &redis.Pool{
