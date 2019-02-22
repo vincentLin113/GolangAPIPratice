@@ -47,6 +47,7 @@ func Setup() error {
 					return nil, err
 				}
 			}
+			fmt.Println("## REDISCONNECT: ", err)
 			return c, err
 		},
 		TestOnBorrow: func(c redis.Conn, t time.Time) error {
