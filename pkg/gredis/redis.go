@@ -46,8 +46,8 @@ func Setup() error {
 				break
 			}
 			if password != "" {
-				fmt.Println("\n ##### REDIST PASSWORD: ", setting.RedisSetting.Paswword)
-				if _, err := c.Do("AUTH", setting.RedisSetting.Paswword); err != nil {
+				fmt.Println("\n ##### REDIST PASSWORD: ", password)
+				if _, err := c.Do("AUTH", password); err != nil {
 					c.Close()
 					fmt.Println("\n ### REDIS AUTH ERROR: ", err)
 					return nil, err
