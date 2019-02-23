@@ -57,12 +57,13 @@ func GetArticle(id int) (*Article, error) {
 
 func AddArticle(data map[string]interface{}) error {
 	err := db.Create(&Article{
-		TagID:     data["tag_id"].(int),
-		Title:     data["title"].(string),
-		Desc:      data["desc"].(string),
-		Content:   data["content"].(string),
-		CreatedBy: data["created_by"].(string),
-		StateCode: data["state_code"].(int),
+		TagID:         data["tag_id"].(int),
+		Title:         data["title"].(string),
+		Desc:          data["desc"].(string),
+		Content:       data["content"].(string),
+		CreatedBy:     data["created_by"].(string),
+		StateCode:     data["state_code"].(int),
+		CoverImageUrl: data["cover_image_url"].(string),
 	}).Error
 	return err
 }
