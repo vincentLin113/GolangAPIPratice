@@ -95,3 +95,7 @@ func IsLocalTest() bool {
 	}
 	return false
 }
+
+func (serverSetting *Server) IsDebug() bool {
+	return serverSetting.RunMode == "debug"
+}

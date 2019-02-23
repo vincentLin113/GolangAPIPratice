@@ -39,7 +39,8 @@ func Setup() error {
 				return nil, err
 			}
 			password := setting.RedisSetting.Paswword
-			if !setting.IsLocalTest() {
+			// 若不是本地 但是debug, 則輸入debug環境Redis密碼
+			if !setting.IsLocalTest() && setting.ServerSetting.IsDebug() {
 				password = "52b085c3ec98f1bdf6d1d9d66c5dcaec"
 			} else {
 				password = ""
