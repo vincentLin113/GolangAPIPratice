@@ -26,6 +26,7 @@ var AppSetting = &App{}
 
 type Server struct {
 	RunMode      string
+	DebugMode    string
 	HttpPort     int
 	ReadTimeout  time.Duration
 	WriteTimeout time.Duration

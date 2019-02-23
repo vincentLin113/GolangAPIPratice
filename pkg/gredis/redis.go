@@ -16,7 +16,7 @@ var RedisConn *redis.Pool
 
 func Setup() error {
 	host := ""
-	if setting.ServerSetting.RunMode == "debug" {
+	if setting.ServerSetting.DebugMode == "local" {
 		host = "localhost:6379"
 	} else {
 		fullAddress := os.Getenv("REDISTOGO_URL")
@@ -38,8 +38,14 @@ func Setup() error {
 				fmt.Println("\n### DIAL TCP ERROR: ", err)
 				return nil, err
 			}
-
-			if setting.RedisSetting.Paswword != "" {
+			password := setting.RedisSetting.Paswword
+			switch setting.ServerSetting.DebugMode {
+			case "debug":
+				password = "52b085c3ec98f1bdf6d1d9d66c5dcaec"
+			case "local":
+				break
+			}
+			if password != "" {
 				fmt.Println("\n ##### REDIST PASSWORD: ", setting.RedisSetting.Paswword)
 				if _, err := c.Do("AUTH", setting.RedisSetting.Paswword); err != nil {
 					c.Close()
