@@ -1,7 +1,9 @@
 package setting
 
 import (
+	"fmt"
 	"log"
+	"os"
 	"time"
 
 	"github.com/go-ini/ini"
@@ -80,4 +82,16 @@ func Setup() {
 	if err != nil {
 		log.Fatalf("cfg.MapTo RedisSetting err: %v", err)
 	}
+}
+
+func IsLocalTest() bool {
+	host, err := os.Hostname()
+	if err != nil {
+		fmt.Errorf("isLocalTest Error: %v", err)
+	} else {
+		if host == "linjianxinde-MacBook-Pro.local" {
+			return true
+		}
+	}
+	return false
 }

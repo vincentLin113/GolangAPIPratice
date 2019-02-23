@@ -28,7 +28,7 @@ var auth = Auth{
 
 func Setup() {
 	var err error
-	if setting.ServerSetting.RunMode == "debug" {
+	if setting.IsLocalTest() {
 		dbType := setting.DatabaseSetting.Type
 		dbName := setting.DatabaseSetting.Name
 		user := setting.DatabaseSetting.User

@@ -27,3 +27,7 @@
 [ERROR][main.go:41]2019/02/21 17:33:48 [accept tcp [::]:8000: use of closed network connection]
 [ERROR][main.go:41]2019/02/21 17:41:30 [accept tcp [::]:8000: use of closed network connection]
 [ERROR][main.go:41]2019/02/21 17:42:53 [accept tcp [::]:8000: use of closed network connection]
+[ERROR][main.go:42]2019/02/23 15:36:18 [accept tcp [::]:8000: use of closed network connection]
+[ERROR][main.go:42]2019/02/23 15:42:43 [accept tcp [::]:8000: use of closed network connection]
+[ERROR][main.go:40]2019/02/23 15:42:51 [accept tcp [::]:8000: use of closed network connection]
+[ERROR][main.go:40]2019/02/23 15:44:59 [accept tcp [::]:8000: use of closed network connection]

@@ -16,7 +16,7 @@ var RedisConn *redis.Pool
 
 func Setup() error {
 	host := ""
-	if setting.ServerSetting.DebugMode == "local" {
+	if setting.IsLocalTest() {
 		host = "localhost:6379"
 	} else {
 		fullAddress := os.Getenv("REDISTOGO_URL")
@@ -39,11 +39,10 @@ func Setup() error {
 				return nil, err
 			}
 			password := setting.RedisSetting.Paswword
-			switch setting.ServerSetting.DebugMode {
-			case "debug":
+			if !setting.IsLocalTest() {
 				password = "52b085c3ec98f1bdf6d1d9d66c5dcaec"
-			case "local":
-				break
+			} else {
+				password = ""
 			}
 			if password != "" {
 				fmt.Println("\n ##### REDIST PASSWORD: ", password)
