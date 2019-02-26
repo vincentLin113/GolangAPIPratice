@@ -33,6 +33,10 @@ func InitRouter() *gin.Engine {
 		apiv1.POST("/articles", v1.AddArticle)
 		apiv1.PUT("/articles/:id", v1.EditArticle)
 		apiv1.DELETE("/articles/:id", v1.DeleteArticle)
+
+		//users
+		apiv1.GET("/users/:id", v1.GetUser)
+		apiv1.POST("/users", v1.AddUser)
 	}
 	return r
 }

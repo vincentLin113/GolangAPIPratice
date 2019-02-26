@@ -9,9 +9,10 @@ import (
 
 	"github.com/jinzhu/gorm"
 	_ "github.com/lib/pq"
+	gormigrate "gopkg.in/gormigrate.v1"
 )
 
-var db *gorm.DB
+var database *gorm.DB
 
 type Model struct {
 	ID         int `gorm:"primary_key" json:"id"`
@@ -34,27 +35,63 @@ func Setup() {
 		user := setting.DatabaseSetting.User
 		// host := setting.DatabaseSetting.Host
 		port := setting.DatabaseSetting.Port
-		db, err = gorm.Open(dbType, fmt.Sprintf("host=127.0.0.1 user=%s dbname=%s port=%s sslmode=disable", user, dbName, port))
+		database, err = gorm.Open(dbType, fmt.Sprintf("host=127.0.0.1 user=%s dbname=%s port=%s sslmode=disable", user, dbName, port))
 	} else {
-		db, err = gorm.Open("postgres", os.Getenv("DATABASE_URL"))
+		database, err = gorm.Open("postgres", os.Getenv("DATABASE_URL"))
 	}
 
 	if err != nil {
 		log.Fatalf("Open db error: %v", err)
 	}
-	db.AutoMigrate(&Tag{}, &Article{}, &Auth{})
+	database.AutoMigrate(&Tag{}, &Article{}, &Auth{})
 	fmt.Println("Create `Tag` and `Article` and `Auth`")
 	// 此為單數Model的開關
 	// db.SingularTable(true)
-	db.Callback().Create().Replace("gorm:update_time_stamp", updateTimeStampForCreateCallback)
-	db.Callback().Update().Replace("gorm:update_time_stamp", updateTimeStampForUpdateCallback)
-	db.Callback().Delete().Replace("gorm:delete", deleteCallback)
-	db.DB().SetMaxIdleConns(10)
-	db.DB().SetMaxOpenConns(100)
+	database.Callback().Create().Replace("gorm:update_time_stamp", updateTimeStampForCreateCallback)
+	database.Callback().Update().Replace("gorm:update_time_stamp", updateTimeStampForUpdateCallback)
+	database.Callback().Delete().Replace("gorm:delete", deleteCallback)
+	database.DB().SetMaxIdleConns(10)
+	database.DB().SetMaxOpenConns(100)
 	if !checkDefaultAuthInfo() {
-		db.Create(&auth)
+		database.Create(&auth)
 		fmt.Println("Create default auth information☺️")
 	}
+
+	m := gormigrate.New(database, gormigrate.DefaultOptions, []*gormigrate.Migration{
+		// create persons table
+		{
+			ID: "201902261439",
+			Migrate: func(tx *gorm.DB) error {
+				return tx.AutoMigrate(&User{}).Error
+			},
+			Rollback: func(tx *gorm.DB) error {
+				return tx.DropTable("Users").Error
+			},
+		},
+		{
+			ID: "201902261638",
+			Migrate: func(tx *gorm.DB) error {
+				err := tx.AutoMigrate(User{}).Error
+				return err
+			},
+		},
+		{
+			ID: "201902261707",
+			Migrate: func(tx *gorm.DB) error {
+				err := tx.Table("users").Where("state is NULL").UpdateColumn("state", "0").Error
+				return err
+			},
+			Rollback: func(tx *gorm.DB) error {
+				fmt.Println("\n#### UPDATE USER.STATE column fail ###")
+				return nil
+			},
+		},
+	})
+
+	if err := m.Migrate(); err != nil {
+		log.Fatalln("Could not migrate: ", err)
+	}
+	log.Println("### Migration did run successfully ###")
 }
 
 func updateTimeStampForCreateCallback(scope *gorm.Scope) {
@@ -84,7 +121,7 @@ func updateTimeStampForUpdateCallback(scope *gorm.Scope) {
 
 func checkDefaultAuthInfo() bool {
 	var _au Auth
-	db.Table("auths").Where("password = ?", &auth.Password).Find(&_au)
+	database.Table("auths").Where("password = ?", &auth.Password).Find(&_au)
 	return _au.ID > 0
 }
 
