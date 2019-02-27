@@ -13,6 +13,7 @@ type User struct {
 	Name     string
 	Email    string
 	Password string
+	State    int
 
 	PageNum  int
 	PageSize int

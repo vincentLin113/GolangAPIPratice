@@ -56,42 +56,7 @@ func Setup() {
 		database.Create(&auth)
 		fmt.Println("Create default auth information☺️")
 	}
-
-	m := gormigrate.New(database, gormigrate.DefaultOptions, []*gormigrate.Migration{
-		// create persons table
-		{
-			ID: "201902261439",
-			Migrate: func(tx *gorm.DB) error {
-				return tx.AutoMigrate(&User{}).Error
-			},
-			Rollback: func(tx *gorm.DB) error {
-				return tx.DropTable("Users").Error
-			},
-		},
-		{
-			ID: "201902261638",
-			Migrate: func(tx *gorm.DB) error {
-				err := tx.AutoMigrate(User{}).Error
-				return err
-			},
-		},
-		{
-			ID: "201902261707",
-			Migrate: func(tx *gorm.DB) error {
-				err := tx.Table("users").Where("state is NULL").UpdateColumn("state", "0").Error
-				return err
-			},
-			Rollback: func(tx *gorm.DB) error {
-				fmt.Println("\n#### UPDATE USER.STATE column fail ###")
-				return nil
-			},
-		},
-	})
-
-	if err := m.Migrate(); err != nil {
-		log.Fatalln("Could not migrate: ", err)
-	}
-	log.Println("### Migration did run successfully ###")
+	databaseMigrate()
 }
 
 func updateTimeStampForCreateCallback(scope *gorm.Scope) {
@@ -160,4 +125,88 @@ func addExtraSpaceIfExist(str string) string {
 		return " " + str
 	}
 	return ""
+}
+
+func databaseMigrate() {
+	m := gormigrate.New(database, gormigrate.DefaultOptions, []*gormigrate.Migration{
+		// create persons table
+		{
+			ID: "201902261439",
+			Migrate: func(tx *gorm.DB) error {
+				return tx.AutoMigrate(&User{}).Error
+			},
+			Rollback: func(tx *gorm.DB) error {
+				return tx.DropTable("Users").Error
+			},
+		},
+		{
+			ID: "201902261638",
+			Migrate: func(tx *gorm.DB) error {
+				err := tx.AutoMigrate(User{}).Error
+				return err
+			},
+		},
+		{
+			ID: "201902261707",
+			Migrate: func(tx *gorm.DB) error {
+				err := tx.Table("users").Where("state is NULL").UpdateColumn("state", "0").Error
+				return err
+			},
+			Rollback: func(tx *gorm.DB) error {
+				fmt.Println("\n#### UPDATE USER.STATE column fail ###")
+				return nil
+			},
+		},
+		{
+			ID: "2019002270944",
+			Migrate: func(tx *gorm.DB) error {
+				err := tx.Table("users").Where("password = ?", "").UpdateColumn("password", "123456abcd").Error
+				if err == nil {
+					fmt.Println("\n### UPDATE USER.PASSWORD successfully###")
+				}
+				return err
+			},
+			Rollback: func(tx *gorm.DB) error {
+				fmt.Println("\n ### UPDATE USER.PASSWORD column fail ###")
+				return nil
+			},
+		},
+		{
+			ID: "201902271027",
+			Migrate: func(tx *gorm.DB) error {
+				type Article struct {
+					Model
+					Tag           Tag    `json: "tag"`
+					TagID         int    `json: "tag_id"`
+					Title         string `json: "title"`
+					Desc          string `json: "desc"`
+					Content       string `json: "content"`
+					CreatedBy     string `json: "created_by"`
+					ModifiedBy    string `json: "modified_by"`
+					StateCode     int    `json: "stateCode"`
+					CoverImageUrl string `json:"cover_image_url"`
+					User_ID       int    `json: "user_id"; sql:DEFAULT: 0`
+				}
+				err := tx.AutoMigrate(&Article{}).Error
+				if err == nil {
+					fmt.Println("\n### ADD NEW COLUMN `User_ID` to `User`###")
+					err = tx.Table("articles").Where("user_id is NULL").UpdateColumn("user_id", "0").Error
+					if err == nil {
+						fmt.Println("\n####UPDATE ARTICLE.USER_ID column successfully###")
+					}
+				}
+				tx.Table("users").DropColumn("user_id")
+				return err
+			},
+			Rollback: func(tx *gorm.DB) error {
+				fmt.Println("\n###ADD COLUMN `User_ID` is fail###")
+				return nil
+			},
+		},
+	})
+
+	if err := m.Migrate(); err != nil {
+		log.Fatalln("Could not migrate: ", err)
+	}
+	log.Println("### Migration did run successfully ###")
 }
