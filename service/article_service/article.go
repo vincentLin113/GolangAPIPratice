@@ -3,9 +3,11 @@ package article_service
 import (
 	"encoding/json"
 	"vincent-gin-go/models"
+	"vincent-gin-go/pkg/e"
 	"vincent-gin-go/pkg/gredis"
 	"vincent-gin-go/pkg/logging"
 	"vincent-gin-go/service/cache_service"
+	"vincent-gin-go/service/user_service"
 )
 
 type Article struct {
@@ -16,8 +18,8 @@ type Article struct {
 	Content       string
 	CoverImageUrl string
 	State         int
-	CreatedBy     string
 	ModifiedBy    string
+	UserID        int
 
 	PageNum  int
 	PageSize int
@@ -86,8 +88,36 @@ func (a *Article) GetAll() ([]*models.Article, error) {
 	return articles, nil
 }
 
-func (a *Article) Add() error {
-	return models.AddArticle(a.getMaps())
+func (a *Article) Add() (err error, errorCode int, errorMsg string) {
+	userService := user_service.User{ID: a.UserID}
+	_, err = userService.ExistByID()
+	if err != nil {
+		errorCode = e.ERROR_GET_USER_FAIL
+		errorMsg = e.GetMessage(e.ERROR_GET_USER_FAIL)
+		return
+	}
+	user, err := userService.Get()
+	if err != nil {
+		errorCode = e.ERROR_GET_USER_FAIL
+		errorMsg = e.GetMessage(e.ERROR_GET_USER_FAIL)
+		return
+	}
+	if user.DeletedOn > 0 {
+		err = e.UserBeDeleted()
+		errorCode = e.ERROR_GET_USER_DELETED_FAIL
+		errorMsg = e.GetMessage(e.ERROR_GET_USER_DELETED_FAIL)
+		return
+	}
+	if user.State == 0 {
+		err = e.UserBeStoped()
+		errorCode = e.ERROR_GET_USER_BAN_FAIL
+		errorMsg = e.GetMessage(e.ERROR_GET_USER_BAN_FAIL)
+		return
+	}
+	err = models.AddArticle(a.getMaps())
+	errorCode = 0
+	errorMsg = ""
+	return
 }
 
 func (a *Article) Edit() error {
@@ -100,6 +130,7 @@ func (a *Article) Edit() error {
 		"cover_image_url": a.CoverImageUrl,
 		"state":           a.State,
 		"modified_by":     a.ModifiedBy,
+		"user_id":         a.UserID,
 	})
 	return err
 }
@@ -113,10 +144,17 @@ func (a *Article) getMaps() map[string]interface{} {
 	if a.TagID != -1 {
 		maps["tag_id"] = a.TagID
 	}
+	if a.UserID != -1 {
+		maps["user_id"] = a.UserID
+		userService := user_service.User{ID: a.UserID}
+		user, err := userService.Get()
+		if err == nil {
+			maps["created_by"] = user.Name
+		}
+	}
 	maps["content"] = a.Content
 	maps["desc"] = a.Desc
 	maps["title"] = a.Title
 	maps["cover_image_url"] = a.CoverImageUrl
-	maps["created_by"] = a.CreatedBy
 	return maps
 }

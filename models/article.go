@@ -16,30 +16,32 @@ type Article struct {
 	ModifiedBy    string `json: "modified_by"`
 	StateCode     int    `json: "stateCode"`
 	CoverImageUrl string `json:"cover_image_url"`
+	User          User   `json: "user"`
+	UserID        int    `json: "user_id"; sql:DEFAULT: 0`
 }
 
 func ExistArticleByName(name string) bool {
 	var article Article
-	db.Where("name = ?", name).First(&article)
+	database.Where("name = ?", name).First(&article)
 	return article.ID > 0
 }
 
 func ExistArticleById(id int) (bool, error) {
 	var article Article
-	err := db.Where("id = ? AND deleted_on = ?", id, 0).First(&article).Error
+	err := database.Where("id = ? AND deleted_on = ?", id, 0).First(&article).Error
 	return article.ID > 0, err
 }
 
 func GetArticleTotalCount(data interface{}) (int, error) {
 	var count int
-	err := db.Model(Article{}).Where(data).Count(&count).Error
+	err := database.Model(Article{}).Where(data).Count(&count).Error
 	return count, err
 }
 
 // GetAllArticles `Get all article in the database`
 func GetAllArticles(pageNum int, pageSize int, maps interface{}) ([]*Article, error) {
 	var articles = []*Article{}
-	err := db.Preload("Tag").Where(maps).Offset(pageNum).Limit(pageSize).Find(&articles).Error
+	err := database.Preload("Tag").Where(maps).Offset(pageNum).Limit(pageSize).Find(&articles).Error
 	return articles, err
 }
 
@@ -48,7 +50,13 @@ func GetArticle(id int) (*Article, error) {
 	//  Article有一个结构体成员是TagID，就是外键。gorm会通过类名+ID的方式去找到这两个类之间的关联关系
 	//  Article有一个结构体成员是Tag，就是我们嵌套在Article里的Tag结构体，我们可以通过Related进行关联查询
 	var article Article
-	err := db.Where("id = ? AND deleted_on = ?", id, 0).First(&article).Related(&article.Tag).Error
+	tag := Tag{}
+	user := User{}
+	err := database.Where("id = ? AND deleted_on = ?", id, 0).First(&article).Error
+	err = database.Model(&article).Related(&tag).Error
+	err = database.Model(&article).Related(&user).Error
+	article.Tag = tag
+	article.User = user
 	if err != nil && err != gorm.ErrRecordNotFound {
 		return nil, err
 	}
@@ -56,7 +64,7 @@ func GetArticle(id int) (*Article, error) {
 }
 
 func AddArticle(data map[string]interface{}) error {
-	err := db.Create(&Article{
+	err := database.Create(&Article{
 		TagID:         data["tag_id"].(int),
 		Title:         data["title"].(string),
 		Desc:          data["desc"].(string),
@@ -64,18 +72,19 @@ func AddArticle(data map[string]interface{}) error {
 		CreatedBy:     data["created_by"].(string),
 		StateCode:     data["state_code"].(int),
 		CoverImageUrl: data["cover_image_url"].(string),
+		UserID:        data["user_id"].(int),
 	}).Error
 	return err
 }
 
 func EditArticle(id int, data interface{}) error {
-	if err := db.Model(&Article{}).Where("id = ?", id).Updates(data).Error; err != nil {
+	if err := database.Model(&Article{}).Where("id = ?", id).Updates(data).Error; err != nil {
 		return err
 	}
 	return nil
 }
 
 func DeleteArticle(id int) bool {
-	db.Where("id = ?", id).Delete(Article{})
+	database.Where("id = ?", id).Delete(Article{})
 	return true
 }

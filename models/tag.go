@@ -14,7 +14,7 @@ type Tag struct {
 
 func GetTags(pageNum int, pageSize int, maps interface{}) ([]Tag, error) {
 	var tags []Tag
-	err := db.Where(maps).Offset(pageNum).Limit(pageSize).Find(&tags).Error
+	err := database.Where(maps).Offset(pageNum).Limit(pageSize).Find(&tags).Error
 	if err != nil {
 		log.Fatalf("db error: %v", err)
 	}
@@ -23,13 +23,13 @@ func GetTags(pageNum int, pageSize int, maps interface{}) ([]Tag, error) {
 
 func GetTagTotal(maps interface{}) (int, error) {
 	var count int
-	err := db.Model(&Tag{}).Where(maps).Count(&count).Error
+	err := database.Model(&Tag{}).Where(maps).Count(&count).Error
 	return count, err
 }
 
 func ExistTagByName(name string) (bool, error) {
 	var tag Tag
-	err := db.Select("id").Where("name = ?", name).First(&tag).Error
+	err := database.Select("id").Where("name = ?", name).First(&tag).Error
 	if tag.ID > 0 {
 		return true, err
 	}
@@ -38,7 +38,7 @@ func ExistTagByName(name string) (bool, error) {
 
 func ExistTagById(id int) (bool, error) {
 	var tag Tag
-	err := db.Where("id = ?", id).First(&tag).Error
+	err := database.Where("id = ?", id).First(&tag).Error
 	if tag.ID > 0 {
 		return true, err
 	}
@@ -46,7 +46,7 @@ func ExistTagById(id int) (bool, error) {
 }
 
 func AddTag(name string, state int, createdBy string) error {
-	err := db.Create(&Tag{
+	err := database.Create(&Tag{
 		Name:      name,
 		State:     state,
 		CreatedBy: createdBy,
@@ -56,7 +56,7 @@ func AddTag(name string, state int, createdBy string) error {
 
 func EditTag(id int, data interface{}) error {
 	var tag Tag
-	err := db.Where("id = ?", id).First(&tag).Updates(data).Error
+	err := database.Where("id = ?", id).First(&tag).Updates(data).Error
 	if err != nil {
 		log.Fatalf("EditTag error: %v", err)
 	}
@@ -64,6 +64,6 @@ func EditTag(id int, data interface{}) error {
 }
 
 func DeleteTag(id int) (bool, error) {
-	err := db.Where("id = ?", id).Delete(&Tag{}).Error
+	err := database.Where("id = ?", id).Delete(&Tag{}).Error
 	return true, err
 }

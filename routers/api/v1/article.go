@@ -11,6 +11,8 @@ import (
 	"vincent-gin-go/service/tag_service"
 	"vincent-gin-go/util"
 
+	"github.com/jinzhu/gorm"
+
 	"github.com/Unknwon/com"
 	"github.com/astaxie/beego/validation"
 	"github.com/gin-gonic/gin"
@@ -97,9 +99,9 @@ type AddArticleForm struct {
 	Title         string `form:"title" valid:"Required;MaxSize(100)"`
 	Desc          string `form:"desc" valid:"Required;MaxSize(255)"`
 	Content       string `form:"content" valid:"Required;MaxSize(65535)"`
-	CreatedBy     string `form:"created_by" valid:"Required;MaxSize(100)"`
 	CoverImageUrl string `form:"cover_image_url" valid:"Required;MaxSize(255)"`
 	State         int    `form:"state_code" valid:"Range(0, 1)"`
+	UserID        int    `form:"user_id" valid:"Required;Min(1)"`
 }
 
 func AddArticle(c *gin.Context) {
@@ -126,12 +128,16 @@ func AddArticle(c *gin.Context) {
 		Title:         form.Title,
 		Desc:          form.Desc,
 		Content:       form.Content,
-		CreatedBy:     form.CreatedBy,
 		CoverImageUrl: form.CoverImageUrl,
 		State:         form.State,
+		UserID:        form.UserID,
 	}
-	if err := articleService.Add(); err != nil {
-		appG.Response(http.StatusInternalServerError, e.ERROR_ADD_ARTICLE_FAIL, nil)
+	if err, errCode, _ := articleService.Add(); err != nil && errCode != 0 {
+		if err == gorm.ErrRecordNotFound {
+			appG.Response(http.StatusInternalServerError, e.ERROR_GET_USER_FAIL, nil)
+		} else {
+			appG.Response(http.StatusInternalServerError, errCode, nil)
+		}
 		return
 	}
 
