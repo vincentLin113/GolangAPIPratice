@@ -51,11 +51,13 @@ func AddUser(c *gin.Context) {
 	name := c.Query("name")
 	email := c.Query("email")
 	password := c.Query("password")
+	state := com.StrTo(c.Query("state")).MustInt()
 	validation := validation.Validation{}
 	validation.Required(name, "name").Message("Name field is required")
 	validation.Email(email, "email").Message("Email格式錯誤")
 	validation.MinSize(email, 5, "email").Message("Email字數過短")
 	validation.MinSize(password, 6, "password").Message("密碼過短")
+	validation.Range(state, 0, 1, "state").Message("State only supported 0 or 1 value")
 
 	if validation.HasErrors() {
 		app.MarkErrors(validation.Errors)
@@ -68,6 +70,7 @@ func AddUser(c *gin.Context) {
 		Name:     name,
 		Email:    email,
 		Password: password,
+		State:    state,
 	}
 	if userService.ExistByEmail() {
 		appG.Response(http.StatusInternalServerError, e.ERROR_ADD_USER_DUPLICATED_EMAIL_ERROR, nil)

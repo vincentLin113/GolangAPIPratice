@@ -9,7 +9,7 @@ type User struct {
 	Name     string `json:"name"`
 	Email    string `json:"email"`
 	Password string `json:"password"`
-	State    int    `json:state_code;sql:"DEFAULT:1"`
+	State    int    `json:state;sql:"DEFAULT:1"`
 }
 
 // ExistUserByName 檢查此名稱是否有人
@@ -39,6 +39,7 @@ func AddUser(data map[string]interface{}) error {
 		Name:     data["name"].(string),
 		Email:    data["email"].(string),
 		Password: data["password"].(string),
+		State:    data["state"].(int),
 	}).Error
 	return err
 }

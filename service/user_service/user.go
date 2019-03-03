@@ -95,6 +95,7 @@ func (u *User) Edit() error {
 		"name":     u.Name,
 		"email":    u.Email,
 		"password": u.Password,
+		"state":    u.State,
 	})
 	return err
 }
@@ -110,5 +111,6 @@ func (u *User) getMap() map[string]interface{} {
 	maps["name"] = u.Name
 	maps["email"] = u.Email
 	maps["password"] = u.Password
+	maps["state"] = u.State
 	return maps
 }

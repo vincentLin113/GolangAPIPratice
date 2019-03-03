@@ -83,3 +83,4 @@
 [ERROR][main.go:40]2019/02/28 10:25:05 [net.Listen error: listen tcp :8000: bind: address already in use]
 [INFO][request.go:12]2019/02/28 15:29:55 [UserID.Required Can not be empty]
 [INFO][request.go:12]2019/02/28 15:29:55 [UserID.Min Minimum is 1]
+[ERROR][main.go:40]2019/03/03 11:40:58 [accept tcp [::]:8000: use of closed network connection]
