@@ -172,24 +172,11 @@ func databaseMigrate() {
 			},
 		},
 		{
-			ID: "201902271027",
+			ID: "201902281043",
 			Migrate: func(tx *gorm.DB) error {
-				type Article struct {
-					Model
-					Tag           Tag    `json: "tag"`
-					TagID         int    `json: "tag_id"`
-					Title         string `json: "title"`
-					Desc          string `json: "desc"`
-					Content       string `json: "content"`
-					CreatedBy     string `json: "created_by"`
-					ModifiedBy    string `json: "modified_by"`
-					StateCode     int    `json: "stateCode"`
-					CoverImageUrl string `json:"cover_image_url"`
-					User_ID       int    `json: "user_id"; sql:DEFAULT: 0`
-				}
 				err := tx.AutoMigrate(&Article{}).Error
 				if err == nil {
-					fmt.Println("\n### ADD NEW COLUMN `User_ID` to `User`###")
+					fmt.Println("\n### ADD NEW COLUMN `User_ID & User` to `User`###")
 					err = tx.Table("articles").Where("user_id is NULL").UpdateColumn("user_id", "0").Error
 					if err == nil {
 						fmt.Println("\n####UPDATE ARTICLE.USER_ID column successfully###")
@@ -199,7 +186,7 @@ func databaseMigrate() {
 				return err
 			},
 			Rollback: func(tx *gorm.DB) error {
-				fmt.Println("\n###ADD COLUMN `User_ID` is fail###")
+				fmt.Println("\n###ADD COLUMN `User_ID & User` is fail###")
 				return nil
 			},
 		},

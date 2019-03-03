@@ -16,6 +16,8 @@ type Article struct {
 	ModifiedBy    string `json: "modified_by"`
 	StateCode     int    `json: "stateCode"`
 	CoverImageUrl string `json:"cover_image_url"`
+	User          User   `json: "user"`
+	UserID        int    `json: "user_id"; sql:DEFAULT: 0`
 }
 
 func ExistArticleByName(name string) bool {
@@ -48,7 +50,13 @@ func GetArticle(id int) (*Article, error) {
 	//  Article有一个结构体成员是TagID，就是外键。gorm会通过类名+ID的方式去找到这两个类之间的关联关系
 	//  Article有一个结构体成员是Tag，就是我们嵌套在Article里的Tag结构体，我们可以通过Related进行关联查询
 	var article Article
-	err := database.Where("id = ? AND deleted_on = ?", id, 0).First(&article).Related(&article.Tag).Error
+	tag := Tag{}
+	user := User{}
+	err := database.Where("id = ? AND deleted_on = ?", id, 0).First(&article).Error
+	err = database.Model(&article).Related(&tag).Error
+	err = database.Model(&article).Related(&user).Error
+	article.Tag = tag
+	article.User = user
 	if err != nil && err != gorm.ErrRecordNotFound {
 		return nil, err
 	}
@@ -64,6 +72,7 @@ func AddArticle(data map[string]interface{}) error {
 		CreatedBy:     data["created_by"].(string),
 		StateCode:     data["state_code"].(int),
 		CoverImageUrl: data["cover_image_url"].(string),
+		UserID:        data["user_id"].(int),
 	}).Error
 	return err
 }
