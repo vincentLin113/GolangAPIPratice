@@ -12,6 +12,11 @@ type Tag struct {
 	State      int    `json:"state"`
 }
 
+// isValid Check this tag is valid or not.
+func (t *Tag) isValid() bool {
+	return t.State == 1
+}
+
 func GetTags(pageNum int, pageSize int, maps interface{}) ([]Tag, error) {
 	var tags []Tag
 	err := database.Where(maps).Offset(pageNum).Limit(pageSize).Find(&tags).Error

@@ -96,24 +96,29 @@ func (a *Article) Add() (err error, errorCode int, errorMsg string) {
 		errorMsg = e.GetMessage(e.ERROR_GET_USER_FAIL)
 		return
 	}
-	user, err := userService.Get()
+	_, err, code, msg := userService.Get()
 	if err != nil {
 		errorCode = e.ERROR_GET_USER_FAIL
 		errorMsg = e.GetMessage(e.ERROR_GET_USER_FAIL)
 		return
 	}
-	if user.DeletedOn > 0 {
-		err = e.UserBeDeleted()
-		errorCode = e.ERROR_GET_USER_DELETED_FAIL
-		errorMsg = e.GetMessage(e.ERROR_GET_USER_DELETED_FAIL)
+	if code != 0 && msg != "" {
+		errorCode = code
+		errorMsg = msg
 		return
 	}
-	if user.State == 0 {
-		err = e.UserBeStoped()
-		errorCode = e.ERROR_GET_USER_BAN_FAIL
-		errorMsg = e.GetMessage(e.ERROR_GET_USER_BAN_FAIL)
-		return
-	}
+	// if user.DeletedOn > 0 {
+	// 	err = e.UserBeDeleted()
+	// 	errorCode = e.ERROR_GET_USER_DELETED_FAIL
+	// 	errorMsg = e.GetMessage(e.ERROR_GET_USER_DELETED_FAIL)
+	// 	return
+	// }
+	// if user.State == 0 {
+	// 	err = e.UserBeStoped()
+	// 	errorCode = e.ERROR_GET_USER_BAN_FAIL
+	// 	errorMsg = e.GetMessage(e.ERROR_GET_USER_BAN_FAIL)
+	// 	return
+	// }
 	err = models.AddArticle(a.getMaps())
 	errorCode = 0
 	errorMsg = ""
@@ -146,11 +151,11 @@ func (a *Article) getMaps() map[string]interface{} {
 	}
 	if a.UserID != -1 {
 		maps["user_id"] = a.UserID
-		userService := user_service.User{ID: a.UserID}
-		user, err := userService.Get()
-		if err == nil {
-			maps["created_by"] = user.Name
-		}
+		// userService := user_service.User{ID: a.UserID}
+		// user, err, errCode, errMsg := userService.Get()
+		// if err == nil {
+		// 	maps["created_by"] = user.Name
+		// }
 	}
 	maps["content"] = a.Content
 	maps["desc"] = a.Desc

@@ -38,11 +38,14 @@ func GetUser(c *gin.Context) {
 		appG.Response(http.StatusOK, e.ERROR_GET_USER_FAIL, nil)
 		return
 	}
-	user, err := userService.Get()
-	if user.State == 0 {
-		appG.Response(http.StatusOK, e.ERROR_GET_USER_BAN_FAIL, nil)
-		return
+	user, err, errCode, errMsg := userService.Get()
+	if errCode != 0 && errMsg != "" {
+		appG.Response(http.StatusOK, errCode, nil)
 	}
+	// if user.State == 0 {
+	// 	appG.Response(http.StatusOK, e.ERROR_GET_USER_BAN_FAIL, nil)
+	// 	return
+	// }
 	appG.Response(http.StatusOK, e.SUCCESS, user)
 }
 

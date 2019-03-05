@@ -69,7 +69,6 @@ func AddArticle(data map[string]interface{}) error {
 		Title:         data["title"].(string),
 		Desc:          data["desc"].(string),
 		Content:       data["content"].(string),
-		CreatedBy:     data["created_by"].(string),
 		StateCode:     data["state_code"].(int),
 		CoverImageUrl: data["cover_image_url"].(string),
 		UserID:        data["user_id"].(int),

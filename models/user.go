@@ -47,7 +47,7 @@ func AddUser(data map[string]interface{}) error {
 // GetUser 獲取用戶
 func GetUser(id int) (*User, error) {
 	var user User
-	err := database.Where("id = ?", id).First(&user).Error
+	err := database.Where("id = ? AND deleted_on = 0", id).First(&user).Error
 	// GORM中找不到也算一種錯誤
 	if err != nil && err != gorm.ErrRecordNotFound {
 		return nil, err
