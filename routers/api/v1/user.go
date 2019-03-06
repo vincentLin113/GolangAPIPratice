@@ -46,20 +46,25 @@ func GetUser(c *gin.Context) {
 	appG.Response(http.StatusOK, e.SUCCESS, user)
 }
 
+type AddUserForm struct {
+	Name     string `form:"name" valid:"Required;MaxSize(255)"`
+	Email    string `form:"email" valid:"Required;MaxSize(255);MinSize(5)"`
+	Password string `form:"password" valid:"Required;MaxSize(255);MinSize(6)"`
+}
+
 func AddUser(c *gin.Context) {
 	appG := app.Gin{c}
 	name := c.Query("name")
 	email := c.Query("email")
 	password := c.Query("password")
-	validation := validation.Validation{}
-	validation.Required(name, "name").Message("Name field is required")
-	validation.Email(email, "email").Message("Email格式錯誤")
-	validation.MinSize(email, 5, "email").Message("Email字數過短")
-	validation.MinSize(password, 6, "password").Message("密碼過短")
-
-	if validation.HasErrors() {
-		app.MarkErrors(validation.Errors)
-		appG.Response(http.StatusBadRequest, e.ERROR_ADD_USER_FAIL, nil)
+	form := AddUserForm{
+		Name:     name,
+		Email:    email,
+		Password: password,
+	}
+	httpCode, errCode := app.BindAndValid(c, form)
+	if httpCode != e.SUCCESS {
+		appG.Response(httpCode, errCode, nil)
 		return
 	}
 
@@ -82,4 +87,54 @@ func AddUser(c *gin.Context) {
 		return
 	}
 	appG.Response(http.StatusOK, e.SUCCESS, userService)
+}
+
+type EditUserForm struct {
+	Name     string `form:"name" valid:"Required;MaxSize(255);MinSize(1)"`
+	Email    string `form:"email" valid:"Required;MaxSize(255);MinSize(5)"`
+	Password string `form:"password" valid:"Required;MaxSize(255);MinSize(6)"`
+	State    int    `form:"state" valid:"Required;Min(0);Max(1)"`
+}
+
+func EditUser(c *gin.Context) {
+	appG := app.Gin{c}
+	id := com.StrTo(c.Param("id")).MustInt()
+	name := c.Query("name")
+	email := c.Query("email")
+	password := c.Query("password")
+	state := com.StrTo(c.Query("state")).MustInt()
+	form := EditUserForm{
+		Name:     name,
+		Email:    email,
+		Password: password,
+		State:    state,
+	}
+	httpCode, errCode := app.BindAndValid(c, form)
+	if httpCode != e.SUCCESS {
+		appG.Response(httpCode, errCode, nil)
+		return
+	}
+
+	userService := user_service.User{
+		ID:       id,
+		Name:     name,
+		Email:    email,
+		Password: password,
+		State:    state,
+	}
+	exist, err := userService.ExistByID()
+	if err != nil {
+		appG.Response(http.StatusInternalServerError, e.ERROR_EDIT_USER_FAIL, nil)
+		return
+	}
+	if !exist {
+		appG.Response(http.StatusInternalServerError, e.ERROR_GET_USER_FAIL, nil)
+		return
+	}
+	err = userService.Edit()
+	if err != nil {
+		appG.Response(http.StatusOK, e.ERROR_EDIT_USER_FAIL, nil)
+		return
+	}
+	appG.Response(http.StatusOK, e.SUCCESS, nil)
 }

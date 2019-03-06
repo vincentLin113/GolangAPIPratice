@@ -95,6 +95,7 @@ func (u *User) Edit() error {
 		"name":     u.Name,
 		"email":    u.Email,
 		"password": u.Password,
+		"state":    u.State,
 	})
 	return err
 }
