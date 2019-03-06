@@ -4,7 +4,7 @@ import (
 	"vincent-gin-go/middleware/jwt"
 	"vincent-gin-go/pkg/setting"
 	"vincent-gin-go/routers/api"
-	"vincent-gin-go/routers/api/v1"
+	v1 "vincent-gin-go/routers/api/v1"
 
 	"github.com/gin-gonic/gin"
 )
@@ -38,6 +38,7 @@ func InitRouter() *gin.Engine {
 		apiv1.GET("/users/:id", v1.GetUser)
 		apiv1.POST("/users", v1.AddUser)
 		apiv1.PUT("/users/:id", v1.EditUser)
+		apiv1.DELETE("/users/:id", v1.DeleteUser)
 	}
 	return r
 }

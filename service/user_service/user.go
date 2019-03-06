@@ -106,6 +106,12 @@ func (u *User) Add() error {
 	return err
 }
 
+// Delete To delete this `user`
+func (u *User) Delete() error {
+	err := models.DeleteUser(u.ID)
+	return err
+}
+
 func (u *User) getMap() map[string]interface{} {
 	maps := make(map[string]interface{})
 	maps["name"] = u.Name

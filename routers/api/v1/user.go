@@ -138,3 +138,32 @@ func EditUser(c *gin.Context) {
 	}
 	appG.Response(http.StatusOK, e.SUCCESS, nil)
 }
+
+// DeleteUser To delete user according `id` parameter.
+func DeleteUser(c *gin.Context) {
+	appG := app.Gin{c}
+	id := com.StrTo(c.Param("id")).MustInt()
+	validation := validation.Validation{}
+	validation.Min(id, 0, "id").Message("ID不得小於1")
+	if validation.HasErrors() {
+		appG.Response(http.StatusBadRequest, e.ERROR_DELETE_USER_FAIL, nil)
+		return
+	}
+	userService := user_service.User{ID: id}
+	exist, err := userService.ExistByID()
+	if err != nil {
+		appG.Response(http.StatusInternalServerError, e.ERROR_DELETE_USER_FAIL, nil)
+		return
+	}
+	if !exist {
+		appG.Response(http.StatusOK, e.ERROR_DELETE_USER_FAIL, nil)
+		return
+	}
+
+	err = userService.Delete()
+	if err != nil {
+		appG.Response(http.StatusInternalServerError, e.ERROR_DELETE_USER_FAIL, nil)
+		return
+	}
+	appG.Response(http.StatusOK, e.SUCCESS, nil)
+}
