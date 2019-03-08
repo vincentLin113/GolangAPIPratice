@@ -17,6 +17,7 @@ func InitRouter() *gin.Engine {
 	// 憑證
 	r.GET("/login", api.Login)
 	r.POST("/upload", api.UploadImage)
+	r.POST("/uploadImageUrl", api.UploadImageByURL)
 	r.POST("/signup", api.SignUp)
 	r.GET("/activate", api.ActivateUser)
 
