@@ -10,6 +10,7 @@ type User struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
 	State    int    `json:state_code;sql:"DEFAULT:1"`
+	Token    string `json:token`
 }
 
 // ExistUserByName 檢查此名稱是否有人
@@ -39,6 +40,7 @@ func AddUser(data map[string]interface{}) error {
 		Name:     data["name"].(string),
 		Email:    data["email"].(string),
 		Password: data["password"].(string),
+		Token:    data["token"].(string),
 	}).Error
 	return err
 }
