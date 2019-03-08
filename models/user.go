@@ -56,6 +56,22 @@ func GetUser(id int) (*User, error) {
 	return &user, nil
 }
 
+// GetUserBy Get user struct by email
+func GetUserBy(email string) (*User, error) {
+	var user User
+	err := database.Where("email = ?", email).Find(&user).Error
+	if err != nil && err != gorm.ErrRecordNotFound {
+		return nil, err
+	}
+	return &user, nil
+}
+
+// ActivateUser To activate user
+func ActivateUser(id int) error {
+	err := database.Table("users").Where("id = ?", id).UpdateColumn("state", "1").Error
+	return err
+}
+
 func GetAllUser(maps interface{}, pageSize int, pageNum int) ([]*User, error) {
 	users := []*User{}
 	err := database.Preload("Article").Where(maps).Offset(pageNum).Limit(pageSize).Find(&users).Error
