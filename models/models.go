@@ -21,21 +21,15 @@ type Model struct {
 	DeletedOn  int `json:"deleted_on"`
 }
 
-// 預設取得Auth的帳號密碼組
-var auth = Auth{
-	Username: "vincent_test",
-	Password: "001122",
-}
-
 func Setup() {
 	var err error
 	if setting.IsLocalTest() {
 		dbType := setting.DatabaseSetting.Type
-		dbName := setting.DatabaseSetting.Name
-		user := setting.DatabaseSetting.User
+		dbName := "postgres"
+		user := "postgres"
 		// host := setting.DatabaseSetting.Host
 		port := setting.DatabaseSetting.Port
-		database, err = gorm.Open(dbType, fmt.Sprintf("host=127.0.0.1 user=%s dbname=%s port=%s sslmode=disable", user, dbName, port))
+		database, err = gorm.Open(dbType, fmt.Sprintf("host=127.0.0.1 user=%s dbname=%s port=%s sslmode=disable password=amg001122", user, dbName, port))
 	} else {
 		database, err = gorm.Open("postgres", os.Getenv("DATABASE_URL"))
 	}
@@ -52,10 +46,10 @@ func Setup() {
 	database.Callback().Delete().Replace("gorm:delete", deleteCallback)
 	database.DB().SetMaxIdleConns(10)
 	database.DB().SetMaxOpenConns(100)
-	if !checkDefaultAuthInfo() {
-		database.Create(&auth)
-		fmt.Println("Create default auth information☺️")
-	}
+	// if !checkDefaultAuthInfo() {
+	// 	database.Create(&auth)
+	// 	fmt.Println("Create default auth information☺️")
+	// }
 	databaseMigrate()
 }
 
@@ -84,11 +78,11 @@ func updateTimeStampForUpdateCallback(scope *gorm.Scope) {
 	}
 }
 
-func checkDefaultAuthInfo() bool {
-	var _au Auth
-	database.Table("auths").Where("password = ?", &auth.Password).Find(&_au)
-	return _au.ID > 0
-}
+// func checkDefaultAuthInfo() bool {
+// 	var _au Auth
+// 	database.Table("auths").Where("password = ?", &auth.Password).Find(&_au)
+// 	return _au.ID > 0
+// }
 
 func deleteCallback(scope *gorm.Scope) {
 	if !scope.HasError() {
@@ -188,6 +182,28 @@ func databaseMigrate() {
 			Rollback: func(tx *gorm.DB) error {
 				fmt.Println("\n###ADD COLUMN `User_ID & User` is fail###")
 				return nil
+			},
+		},
+		{
+			ID: "201903071648",
+			Migrate: func(tx *gorm.DB) error {
+				err := tx.AutoMigrate(&User{}).Error
+				if err != nil {
+					fmt.Printf("###AUTOMIGRATE USER ERROR: %v", err)
+					return err
+				}
+				fmt.Println("\n###User add `Token` column###")
+				err = tx.Table("users").Where("token is NULL").UpdateColumn("token", "").Error
+				if err != nil {
+					fmt.Printf("###UPDATE USER'TOKEN COLUMN ERROR: %v", err)
+					return err
+				}
+				return nil
+			},
+			Rollback: func(tx *gorm.DB) error {
+				fmt.Printf("\n^^^^MIGRATION ERROR^^^^^")
+				err := tx.Table("users").DropColumn("token").Error
+				return err
 			},
 		},
 	})
