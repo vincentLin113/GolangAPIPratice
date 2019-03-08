@@ -6,6 +6,7 @@ import (
 	"vincent-gin-go/pkg/e"
 	"vincent-gin-go/pkg/logging"
 	"vincent-gin-go/pkg/util"
+	v1 "vincent-gin-go/routers/api/v1"
 
 	"github.com/astaxie/beego/validation"
 	"github.com/gin-gonic/gin"
@@ -19,22 +20,22 @@ type auth struct {
 	Password string `valid: Required;MaxSize(50)`
 }
 
-func GetAuth(c *gin.Context) {
-	// Get username, password
-	username := c.Query("username")
+func Login(c *gin.Context) {
+	// Get email, password
+	email := c.Query("email")
 	password := c.Query("password")
 	valid := validation.Validation{}
 
-	valid.Required(username, "username").Message("User is required field")
+	valid.Required(email, "email").Message("Email is required field")
 	valid.Required(password, "password").Message("Password is required field")
 	code := e.INVALID_PARAMS
 	var data = make(map[string]interface{})
 	if !valid.HasErrors() {
 		// 驗證無錯
-		if models.CheckAuth(username, password) {
+		if models.CheckAuth(email, password) {
 			// User is exist
 			// Generate token
-			token, err := util.GenerateToken(username, password)
+			token, err := util.GenerateToken(email, password)
 			if err != nil {
 				code = e.ERROR_AUTH_TOKEN
 			} else {
@@ -55,4 +56,12 @@ func GetAuth(c *gin.Context) {
 		"msg":  e.GetMessage(code),
 		"data": data,
 	})
+}
+
+func SignUp(c *gin.Context) {
+	v1.AddUser(c)
+}
+
+func ActivateUser(c *gin.Context) {
+	
 }
