@@ -57,6 +57,13 @@ type Redis struct {
 
 var RedisSetting = &Redis{}
 
+type Email struct {
+	Email    string
+	Password string
+}
+
+var EmailSetting = &Email{}
+
 func Setup() {
 	cfg, err := ini.Load("conf/app.ini")
 	if err != nil {
@@ -82,6 +89,10 @@ func Setup() {
 	if err != nil {
 		log.Fatalf("cfg.MapTo RedisSetting err: %v", err)
 	}
+	err = cfg.Section("email").MapTo(EmailSetting)
+	if err != nil {
+		log.Fatalf("cfg.MapTo EmailSetting err: %v", err)
+	}
 }
 
 func IsLocalTest() bool {
@@ -89,7 +100,7 @@ func IsLocalTest() bool {
 	if err != nil {
 		fmt.Errorf("isLocalTest Error: %v", err)
 	} else {
-		if host == "linjianxinde-MacBook-Pro.local" {
+		if host == "TWA01119484" {
 			return true
 		}
 	}
