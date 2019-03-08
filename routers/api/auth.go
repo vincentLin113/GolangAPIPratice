@@ -1,12 +1,15 @@
 package api
 
 import (
+	"fmt"
 	"net/http"
 	"vincent-gin-go/models"
+	"vincent-gin-go/pkg/app"
 	"vincent-gin-go/pkg/e"
 	"vincent-gin-go/pkg/logging"
 	"vincent-gin-go/pkg/util"
 	v1 "vincent-gin-go/routers/api/v1"
+	"vincent-gin-go/service/user_service"
 
 	"github.com/astaxie/beego/validation"
 	"github.com/gin-gonic/gin"
@@ -63,5 +66,39 @@ func SignUp(c *gin.Context) {
 }
 
 func ActivateUser(c *gin.Context) {
-	
+	appG := app.Gin{c}
+	email := c.Query("email")
+	token := c.Query("token")
+	validation := validation.Validation{}
+	validation.Email(email, "email").Message("EMAIL_FORMAT_ERROR")
+	validation.Required(token, "token").Message("REQUIRED_FIELD_ERROR")
+	if validation.HasErrors() {
+		app.MarkErrors(validation.Errors)
+		appG.Response(http.StatusBadRequest, e.ERROR_ACTIVATE_USER_FEILD, nil)
+		return
+	}
+	userService := user_service.User{Email: email}
+	exist := userService.ExistByEmail()
+	if !exist {
+		appG.Response(http.StatusInternalServerError, e.ERROR_ACTIVATE_USER_FEILD, nil)
+		return
+	}
+	user, err := userService.GetByEmail()
+	if err != nil {
+		appG.Response(http.StatusInternalServerError, e.ERROR_ACTIVATE_USER_FEILD, nil)
+		return
+	}
+	fmt.Println("\nUSERTOKEN: ", user.Token)
+	fmt.Println("\nTOKEN: ", token)
+	if user.Token != token {
+		appG.Response(http.StatusInternalServerError, e.ERROR_ACTIVATE_USER_FEILD, nil)
+		return
+	}
+	userService.ID = user.ID
+	err = userService.Activate()
+	if err != nil {
+		appG.Response(http.StatusInternalServerError, e.ERROR_ACTIVATE_USER_FEILD, nil)
+		return
+	}
+	appG.Response(http.StatusOK, e.SUCCESS, nil)
 }
