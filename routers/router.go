@@ -18,6 +18,7 @@ func InitRouter() *gin.Engine {
 	r.GET("/login", api.Login)
 	r.POST("/upload", api.UploadImage)
 	r.POST("/signup", api.SignUp)
+	r.GET("/activate", api.ActivateUser)
 
 	apiv1 := r.Group("/api/v1")
 	apiv1.Use(jwt.JWT())
