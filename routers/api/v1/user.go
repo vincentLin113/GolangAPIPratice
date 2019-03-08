@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"vincent-gin-go/pkg/app"
 	"vincent-gin-go/pkg/e"
+	"vincent-gin-go/pkg/util"
 	"vincent-gin-go/service/user_service"
 
 	"github.com/Unknwon/com"
@@ -67,12 +68,17 @@ func AddUser(c *gin.Context) {
 		appG.Response(httpCode, errCode, nil)
 		return
 	}
-
+	token, err := util.GenerateToken(name, password)
+	if err != nil {
+		appG.Response(http.StatusInternalServerError, e.ERROR_ADD_USER_FAIL, nil)
+		return
+	}
 	// 驗證無錯, 則新增用戶
 	userService := user_service.User{
 		Name:     name,
 		Email:    email,
 		Password: password,
+		Token:    token,
 	}
 	if userService.ExistByEmail() {
 		appG.Response(http.StatusInternalServerError, e.ERROR_ADD_USER_DUPLICATED_EMAIL_ERROR, nil)
@@ -81,11 +87,12 @@ func AddUser(c *gin.Context) {
 		appG.Response(http.StatusInternalServerError, e.ERROR_ADD_USER_DUPLICATED_NAME_ERROR, nil)
 		return
 	}
-	err := userService.Add()
+	err = userService.Add()
 	if err != nil {
 		appG.Response(http.StatusInternalServerError, e.ERROR_ADD_USER_FAIL, nil)
 		return
 	}
+	util.SendActivationEmail(email, token)
 	appG.Response(http.StatusOK, e.SUCCESS, userService)
 }
 
