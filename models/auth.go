@@ -2,12 +2,12 @@ package models
 
 type Auth struct {
 	ID       int    `gorm:"primary_key" json:"id"`
-	Username string `json:"username"`
+	Email    string `json:"email"`
 	Password string `json:"password"`
 }
 
 func CheckAuth(username, password string) bool {
 	var auth Auth
-	database.Where(&Auth{Username: username, Password: password}).Find(&auth)
+	database.Table("users").Where("email = ? AND password = ?", username, password).Find(&auth)
 	return auth.ID != 0
 }
