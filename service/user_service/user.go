@@ -114,6 +114,16 @@ func (u *User) Delete() error {
 	return err
 }
 
+func (u *User) GetByEmail() (*models.User, error) {
+	user, err := models.GetUserBy(u.Email)
+	return user, err
+}
+
+func (u *User) Activate() error {
+	err := models.ActivateUser(u.ID)
+	return err
+}
+
 func (u *User) getMap() map[string]interface{} {
 	maps := make(map[string]interface{})
 	maps["name"] = u.Name
