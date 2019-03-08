@@ -39,6 +39,7 @@ var MsgFlags = map[int]string{
 	ERROR_ADD_USER_DUPLICATED_NAME_ERROR:  "USER_NAME_DUPLICATED",
 	ERROR_GET_USER_BAN_FAIL:               "USER_BAN_FAIL",
 	ERROR_GET_USER_DELETED_FAIL:           "USER_BE_DELETED",
+	ERROR_ACTIVATE_USER_FEILD:       "ACTIVATE_USER_ERROR",
 }
 
 func GetMessage(code int) string {
