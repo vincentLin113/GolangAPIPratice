@@ -14,6 +14,7 @@ type User struct {
 	Email    string
 	Password string
 	State    int
+	Token    string
 
 	PageNum  int
 	PageSize int
@@ -96,6 +97,7 @@ func (u *User) Edit() error {
 		"email":    u.Email,
 		"password": u.Password,
 		"state":    u.State,
+		"token":    u.Token,
 	})
 	return err
 }
@@ -117,5 +119,6 @@ func (u *User) getMap() map[string]interface{} {
 	maps["name"] = u.Name
 	maps["email"] = u.Email
 	maps["password"] = u.Password
+	maps["token"] = u.Token
 	return maps
 }
