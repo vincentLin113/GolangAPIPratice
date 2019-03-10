@@ -45,15 +45,29 @@ func AddUser(data map[string]interface{}) error {
 	return err
 }
 
+//SimpleUser 不帶密碼的User
+type SimpleUser struct {
+	Name  string `json:"name"`
+	Email string `json:"email"`
+	Model
+	State int `json:"state"`
+}
+
 // GetUser 獲取用戶
-func GetUser(id int) (*User, error) {
+func GetUser(id int) (*SimpleUser, error) {
 	var user User
 	err := database.Where("id = ?", id).First(&user).Error
 	// GORM中找不到也算一種錯誤
 	if err != nil && err != gorm.ErrRecordNotFound {
 		return nil, err
 	}
-	return &user, nil
+	simpleU := SimpleUser{
+		Name:  user.Name,
+		Email: user.Email,
+		Model: user.Model,
+		State: user.State,
+	}
+	return &simpleU, nil
 }
 
 // GetUserBy Get user struct by email
