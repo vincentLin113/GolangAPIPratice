@@ -100,7 +100,7 @@ func IsLocalTest() bool {
 	if err != nil {
 		fmt.Errorf("isLocalTest Error: %v", err)
 	} else {
-		if host == "TWA01119484" {
+		if host == "TWA01119484" || host == "linjianxinde-MacBook-Pro.local" {
 			return true
 		}
 	}
