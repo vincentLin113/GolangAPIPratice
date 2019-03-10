@@ -32,26 +32,28 @@ func (u *User) ExistByName() bool {
 	return models.ExistUserByName(u.Name)
 }
 
-func (u *User) Get() (*models.User, error) {
-	var user *models.User
-	cache := cache_service.User{ID: u.ID}
-	key := cache.GetUserKey()
-	if gredis.Exists(key) {
-		// 若存在
-		data, err := gredis.Get(key)
-		if err != nil {
-			logging.Info(err)
-		} else {
-			json.Unmarshal(data, &user)
-			return user, nil
-		}
-	}
+func (u *User) Get() (*models.SimpleUser, error) {
+	// User資料使用Cache不適合
+
+	// var user *models.User
+	// cache := cache_service.User{ID: u.ID}
+	// key := cache.GetUserKey()
+	// if gredis.Exists(key) {
+	// 	// 若存在
+	// 	data, err := gredis.Get(key)
+	// 	if err != nil {
+	// 		logging.Info(err)
+	// 	} else {
+	// 		json.Unmarshal(data, &user)
+	// 		return user, nil
+	// 	}
+	// }
 	// 若不存在
 	existUser, err := models.GetUser(u.ID)
 	if err != nil {
 		return nil, err
 	}
-	gredis.Set(key, existUser, 3600)
+	// gredis.Set(key, existUser, 3600)
 	return existUser, err
 }
 
